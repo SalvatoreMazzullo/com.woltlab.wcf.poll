@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data xmlns="http://www.woltlab.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.woltlab.com http://www.woltlab.com/XSD/templatelistener.xsd">
+	<import>
+		<!-- user -->
+		<templatelistener name="messageFormPollTabMenuItem">
+			<environment>user</environment>
+			<templatename>messageFormTabs</templatename>
+			<eventname>tabMenuItems</eventname>
+			<templatecode><![CDATA[{if $__showPoll|isset && $__showPoll}<li><a href="#poll" title="{lang}wcf.poll.management{/lang}">{lang}wcf.poll.management{/lang}</a></li>{/if}]]></templatecode>
+		</templatelistener>
+		
+		<templatelistener name="messageFormPoll">
+			<environment>user</environment>
+			<templatename>messageFormTabs</templatename>
+			<eventname>tabMenuContent</eventname>
+			<templatecode><![CDATA[{include file='__messageFormPoll'}]]></templatecode>
+		</templatelistener>
+		<!-- /user -->
+	</import>
+</data>
