@@ -3,7 +3,9 @@ namespace wcf\data\poll;
 use wcf\data\poll\PollEditor;
 use wcf\data\poll\option\PollOptionList;
 use wcf\data\AbstractDatabaseObjectAction;
+use wcf\system\database\util\PreparedStatementConditionBuilder;
 use wcf\system\WCF;
+use wcf\util\UserUtil;
 
 /**
  * Executes poll-related actions.
@@ -131,13 +133,48 @@ class PollAction extends AbstractDatabaseObjectAction {
 				foreach ($options as $option) {
 					$statement->execute(array($option->optionID));
 				}
-				
-				// force recalculation of poll stats
-				$pollEditor = new PollEditor($poll);
-				$pollEditor->calculateVotes();
 			}
 			
+			// force recalculation of poll stats
+			$pollEditor = new PollEditor($poll);
+			$pollEditor->calculateVotes();
+			
 			WCF::getDB()->commitTransaction();
+		}
+	}
+	
+	/**
+	 * Executes a user's vote.
+	 */
+	public function vote() {
+		// remove previous vote
+		$conditions = new PreparedStatementConditionBuilder();
+		$conditions->add("pollID = ?", array(current($this->objects)));
+		if (WCF::getUser()->userID) {
+			$conditions->add("userID = ?", array(WCF::getUser()->userID));
+		}
+		else {
+			// guets
+			$conditions->add("userID IS NULL");
+			$conditions->add("ipAddress = ?", array(UserUtil::getIpAddress()));
+		}
+		
+		$sql = "DELETE FROM	wcf".WCF_N."_poll_option_vote
+			".$conditions;
+		$statement = WCF::getDB()->prepareStatement($sql);
+		$statement->execute($conditions->getParameters());
+		
+		// insert new vote
+		$sql = "INSERT INTO	wcf".WCF_N."_poll_option_vote
+					(optionID, userID, ipAddress)
+			VALUES		(?, ?, ?)";
+		$statement = WCF::getDB()->prepareStatement($sql);
+		foreach ($this->parameters['optionIDs'] as $optionID) {
+			$statement->execute(array(
+				$optionID,
+				(WCF::getUser()->userID ? WCF::getUser()->userID : null),
+				UserUtil::getIpAddress()
+			));
 		}
 	}
 }

@@ -20,7 +20,7 @@
 	
 	<div id="poll" class="tabMenuContent container containerPadding">
 		<fieldset>
-			<dl>
+			<dl{if $errorField == 'pollOptions'} class="formError"{/if}>
 				<dt>
 					<label for="pollQuestion">{lang}wcf.poll.question{/lang}</label>
 				</dt>
@@ -32,23 +32,38 @@
 				</dt>
 				<dd id="pollOptionContainer" class="sortableListContainer">
 					<ol class="sortableList"></ol>
+					{if $errorField == 'pollOptions'}
+						<small class="innerError">
+							{lang}wcf.global.form.error.empty{/lang}
+						</small>
+					{/if}
 					<small>{lang}wcf.poll.options.description{/lang}</small>
 				</dd>
 			</dl>
 			<dl>
-				<dt>
+				<dt{if $errorField == 'pollEndTime'} class="formError"{/if}>
 					<label for="pollEndTime">{lang}wcf.poll.endTime{/lang}</label>
 				</dt>
 				<dd>
 					<input type="datetime" name="pollEndTime" id="pollEndTime" value="{@$pollEndTime}" />
+					{if $errorField == 'pollEndTime'}
+						<small class="innerError">
+							{lang}wcf.poll.endTime.error.{@$errorType}{/lang}
+						</small>
+					{/if}
 				</dd>
 			</dl>
-			<dl>
+			<dl{if $errorField == 'pollMaxVotes'} class="formError"{/if}>
 				<dt>
 					<label for="pollMaxVotes">{lang}wcf.poll.maxVotes{/lang}</label>
 				</dt>
 				<dd>
 					<input type="number" name="pollMaxVotes" id="pollMaxVotes" value="{@$pollMaxVotes}" min="1" />
+					{if $errorField == 'pollMaxVotes'}
+						<small class="innerError">
+							{lang}wcf.poll.endTime.error.{@$errorType}{/lang}
+						</small>
+					{/if}
 				</dd>
 				<dd>
 					<label><input type="checkbox" name="pollIsChangeable" value="1"{if $pollIsChangeable} checked="checked"{/if} /> {lang}wcf.poll.isChangeable{/lang}</label>

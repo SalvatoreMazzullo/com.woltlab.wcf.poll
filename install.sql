@@ -11,6 +11,7 @@ CREATE TABLE wcf1_poll (
 	sortByVotes TINYINT(1) NOT NULL DEFAULT 0,
 	resultsRequireVote TINYINT(1) NOT NULL DEFAULT 0,
 	maxVotes INT(10) NOT NULL DEFAULT 1,
+	votes INT(10) NOT NULL DEFAULT 0
 );
 
 DROP TABLE IF EXISTS wcf1_poll_option;

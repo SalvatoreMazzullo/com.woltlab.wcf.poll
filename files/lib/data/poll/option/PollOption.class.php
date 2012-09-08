@@ -1,5 +1,6 @@
 <?php
 namespace wcf\data\poll\option;
+use wcf\data\poll\Poll;
 use wcf\data\DatabaseObject;
 
 /**
@@ -22,4 +23,20 @@ class PollOption extends DatabaseObject {
 	 * @see	wcf\data\DatabaseObject::$databaseIndexName
 	 */
 	protected static $databaseTableIndexName = 'optionID';
+	
+	/**
+	 * true, if option was selected by current user
+	 * @var	boolean
+	 */
+	public $selected = false;
+	
+	/**
+	 * Returns relative amount of votes for this option.
+	 * 
+	 * @param	wcf\data\poll\Poll
+	 * @return	integer
+	 */
+	public function getRelativeVotes(Poll $poll) {
+		return round($this->votes / $poll->votes);
+	}
 }

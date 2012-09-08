@@ -47,7 +47,7 @@ WCF.Poll.Management = Class.extend({
 		this._container.parents('form').submit($.proxy(this._submit, this));
 		
 		// init sorting
-		new WCF.Sortable.Simple(containerID, '', undefined, undefined, true);
+		new WCF.Sortable.List(containerID, '', undefined, undefined, true);
 		
 		// trigger resize event for field length calculation
 		this._resize();
@@ -166,6 +166,165 @@ WCF.Poll.Management = Class.extend({
 				var $option = $options[$i];
 				$('<input type="hidden" name="pollOptions[' + $i + ']" value="' + $option.optionID + '_' + $option.optionValue + '" />').appendTo($formSubmit);
 			}
+		}
+	}
+});
+
+WCF.Poll.Handler = Class.extend({
+	_cache: { },
+	_canSeeResult: { },
+	_canVote: { },
+	_objectType: '',
+	_polls: { },
+	_proxy: null,
+	
+	init: function(objectType, containerSelector) {
+		var $polls = $(containerSelector);
+		if (!$polls.length) {
+			console.debug("[WCF.Poll.Manager] Given selector '" + containerSelector + "' does not match, aborting.");
+			return;
+		}
+		
+		this._objectType = objectType || '';
+		if (!this._objectType) {
+			console.debug("[WCF.Poll.Manager] Invalid object type given, aborting.");
+			return;
+		}
+		
+		this._cache = { };
+		this._canSeeResult = { };
+		this._polls = { };
+		this._proxy = new WCF.Action.Proxy({
+			success: $.proxy(this._success, this),
+			url: 'index.php/Poll/?t=' + SECURITY_TOKEN + SID_ARG_2ND
+		});
+		
+		var self = this;
+		$polls.each(function(index, poll) {
+			var $poll = $(poll);
+			var $pollID = $poll.data('pollID');
+			
+			if (self._polls[$pollID] === undefined) {
+				self._cache[$pollID] = {
+					result: '',
+					vote: ''
+				};
+				self._polls[$pollID] = $poll;
+				
+				self._canSeeResult[$pollID] = ($poll.data('canSeeResult')) ? true : false;
+				self._canVote[$pollID] = ($poll.data('canVote')) ? true : false;
+				
+				self._bindListeners($pollID);
+				
+				if ($poll.data('inVote')) {
+					self._prepareVote($pollID);
+				}
+			}
+		});
+	},
+	
+	_bindListeners: function(pollID) {
+		if (this._canSeeResult[pollID]) {
+			this._polls[pollID].find('.jsPollShowResult:eq(0)').attr('pollID', pollID).click($.proxy(this._showResult, this));
+		}
+		
+		if (this._canVote[pollID]) {
+			this._polls[pollID].find('.jsPollVote:eq(0)').attr('pollID', pollID).click($.proxy(this._showVote, this));
+		}
+	},
+	
+	_showResult: function(event, pollID) {
+		var $pollID = (event === null) ? pollID : $(event.currentTarget).data('pollID');
+		
+		// user cannot see the results yet
+		if (!this._canSeeResult[pollID]) {
+			return;
+		}
+		
+		// ignore request, we're within results already
+		var $inVote = this._polls[$pollID].data('inVote');
+		if (!$inVote) {
+			return;
+		}
+		
+		if (this._cache[$pollID].result) {
+			this._proxy.setOption('data', {
+				actionName: 'getResult',
+				pollID: $pollID
+			});
+			this._proxy.sendRequest();
+		}
+		else {
+			// cache current output
+			if (!this._cache[$pollID].vote) {
+				this._cache[$pollID].vote = this._polls[$pollID].find('.pollInnerContainer').html();
+			}
+			
+			// show results from cache
+			this._polls[$pollID].find('.pollInnerContainer').html(this._cache[$pollID].result);
+		}
+	},
+	
+	_showVote: function(event) {
+		
+	},
+	
+	_success: function(data, textStatus, jqXHR) {
+		if (!data || !data.actionName) {
+			return;
+		}
+		
+		switch (data.actionName) {
+			case 'getResult':
+				
+			break;
+			
+			case 'getVote':
+				
+			break;
+			
+			case 'vote':
+				this._cache[data.returnValues.pollID].result = data.returnValues.resultTemplate;
+				
+				if (data.returnValues.voteTemplate) {
+					this._cache[data.returnValues.pollID].vote = data.returnValues.voteTemplate;
+				}
+				
+				// display results
+				this._canSeeResult[data.returnValues.pollID] = true;
+				this._showResult(null, data.returnValues.pollID);
+			break;
+		}
+	},
+	
+	_prepareVote: function(pollID) {
+		this._polls[pollID].find('.pollInnerContainer .jsSubmitVote').click($.proxy(this._vote, this));
+	},
+	
+	_vote: function(event) {
+		var $pollID = $(event.currentTarget).data('pollID');
+		
+		// user cannot vote
+		if (!this._canVote[$pollID]) {
+			return;
+		}
+		
+		// collect values
+		$optionIDs = [ ];
+		this._polls[$pollID].find('.pollInnerContainer input').each(function(index, input) {
+			var $input = $(input);
+			if ($input.is(':checked')) {
+				$optionIDs.push($input.data('optionID'));
+			}
+		});
+		
+		if ($optionsIDs.length) {
+			this._proxy.setOption('data', {
+				actionName: 'vote',
+				optionIDs: $optionIDs,
+				pollID: $pollID
+			});
+			this._proxy.sendRequest();
 		}
 	}
 });

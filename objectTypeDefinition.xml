@@ -3,6 +3,7 @@
 	<import>
 		<definition>
 			<name>com.woltlab.wcf.poll</name>
+			<interfacename>wcf\system\poll\IPollHandler</interfacename>
 		</definition>
 	</import>
 </data>

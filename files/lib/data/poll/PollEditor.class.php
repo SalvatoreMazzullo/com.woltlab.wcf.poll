@@ -33,5 +33,16 @@ class PollEditor extends DatabaseObjectEditor {
 			WHERE	poll_option.pollID = ?";
 		$statement = WCF::getDB()->prepareStatement($sql);
 		$statement->execute(array($this->pollID));
+		
+		// update total count
+		$sql = "UPDATE	wcf".WCF_N."_poll poll
+			SET	poll.votes = (
+					SELECT	SUM(votes)
+					FROM	wcf".WCF_N."_poll
+					WHERE	pollID = poll.pollID
+				)
+			WHERE	poll.pollID = ?";
+		$statement = WCF::getDB()->prepareStatement($sql);
+		$statement->execute(array($this->pollID));
 	}
 }

@@ -3,10 +3,12 @@ namespace wcf\system\poll;
 use wcf\data\object\type\ObjectTypeCache;
 use wcf\data\poll\Poll;
 use wcf\data\poll\PollAction;
+use wcf\system\exception\PermissionDeniedException;
 use wcf\system\exception\SystemException;
 use wcf\system\exception\UserInputException;
 use wcf\system\SingletonFactory;
 use wcf\system\WCF;
+use wcf\util\ClassUtil;
 use wcf\util\StringUtil;
 
 /**
@@ -19,7 +21,7 @@ use wcf\util\StringUtil;
  * @subpackage	system.poll
  * @category 	Community Framework
  */
-class PollHandler extends SingletonFactory {
+class PollManager extends SingletonFactory {
 	/**
 	 * list of object types
 	 * @var	array<wcf\data\object\type\ObjectType>
@@ -50,12 +52,12 @@ class PollHandler extends SingletonFactory {
 	 */
 	protected $pollData = array(
 		'endTime' => 0,
-		'isChangeable' => false,
-		'isPublic' => false,
+		'isChangeable' => 0,
+		'isPublic' => 0,
 		'maxVotes' => 1,
 		'question' => '',
-		'resultsRequireVote' => false,
-		'sortByVotes' => false
+		'resultsRequireVote' => 0,
+		'sortByVotes' => 0
 	);
 	
 	/**
@@ -114,12 +116,12 @@ class PollHandler extends SingletonFactory {
 		if (isset($_POST['pollQuestion'])) $this->pollData['question'] = StringUtil::trim($_POST['pollQuestion']);
 		
 		// boolean values
-		$this->pollData['isChangeable'] = (isset($_POST['pollIsChangeable'])) ? true : false;
-		$this->pollData['resultsRequireVote'] = (isset($_POST['pollResultsRequireVote'])) ? true : false;
-		$this->pollData['sortByVotes'] = (isset($_POST['pollSortByVotes'])) ? true : false;
+		$this->pollData['isChangeable'] = (isset($_POST['pollIsChangeable'])) ? 1 : 0;
+		$this->pollData['resultsRequireVote'] = (isset($_POST['pollResultsRequireVote'])) ? 1 : 0;
+		$this->pollData['sortByVotes'] = (isset($_POST['pollSortByVotes'])) ? 1 : 0;
 		
 		if ($this->poll === null) {
-			$this->pollData['isPublic'] = (isset($_POST['pollIsPublic'])) ? true : false;
+			$this->pollData['isPublic'] = (isset($_POST['pollIsPublic'])) ? 1 : 0;
 		}
 		else {
 			// visibility cannot be changed after creation
@@ -148,7 +150,7 @@ class PollHandler extends SingletonFactory {
 		}
 		
 		// end time is in the past
-		if ($this->pollData['endTime'] <= TIME_NOW) {
+		if ($this->pollData['endTime'] != 0 && $this->pollData['endTime'] <= TIME_NOW) {
 			throw new UserInputException('pollEndTime', 'notValid');
 		}
 		
@@ -245,6 +247,45 @@ class PollHandler extends SingletonFactory {
 		else {
 			// poll display
 			throw new SystemException("IMPLEMENT ME!");
+		}
+	}
+	
+	/**
+	 * Validates permissions for given poll object.
+	 * 
+	 * @param	wcf\data\poll\Poll	$poll
+	 */
+	public function validatePermissions(Poll $poll) {
+		$objectType = null;
+		foreach ($this->cache as $objectTypeObj) {
+			if ($objectTypeObj->objectTypeID == $poll->objectTypeID) {
+				$objectType = $objectTypeObj;
+			}
+		}
+		
+		// accessing an unknown poll, e.g. from a different environment
+		if ($objectType === null) {
+			throw new PermissionDeniedException();
+		}
+		
+		// validates against object type's class
+		if ($objectType->classname !== null) {
+			$className = $objectType->classname;
+			if (!ClassUtil::isInstanceOf($className, 'wcf\system\poll\IPollHandler')) {
+				throw new SystemException("Class '".$className."' does not implement the interface 'wcf\system\poll\IPollHandler'");
+			}
+			else if (!ClassUtil::isInstanceOf($className, 'wcf\system\SingletonFactory')) {
+				throw new SystemException("Class '".$className."' does not extend the class 'wcf\system\SingletonFactory'");
+			}
+			
+			$object = call_user_func(array($className, 'getInstance'));
+			
+			try {
+				$object->validate($poll);
+			}
+			catch (\Exception $e) {
+				throw new PermissionDeniedException();
+			}
 		}
 	}
 }
