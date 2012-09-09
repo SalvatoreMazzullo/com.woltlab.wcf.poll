@@ -170,7 +170,7 @@ WCF.Poll.Management = Class.extend({
 	}
 });
 
-WCF.Poll.Handler = Class.extend({
+WCF.Poll.Manager = Class.extend({
 	_cache: { },
 	_canSeeResult: { },
 	_canVote: { },

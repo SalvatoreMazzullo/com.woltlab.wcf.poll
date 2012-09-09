@@ -4,7 +4,7 @@
 	<script type="text/javascript">
 		//<![CDATA[
 		$(function() {
-			new WCF.Poll.Handler('.pollContainer');
+			new WCF.Poll.Manager('.pollContainer');
 		});
 		//]]>
 	</script>

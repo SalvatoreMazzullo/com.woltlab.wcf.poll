@@ -119,7 +119,7 @@ class Poll extends DatabaseObject {
 	 */
 	public function canVote() {
 		// guest voting is not possible without ip logging
-		if (LOG_IP_ADDRESS && !WCF::getUser()->userID) {
+		if (!LOG_IP_ADDRESS && !WCF::getUser()->userID) {
 			return false;
 		}
 		else if ($this->isFinished()) {
