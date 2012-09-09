@@ -170,24 +170,51 @@ WCF.Poll.Management = Class.extend({
 	}
 });
 
+/**
+ * Manages poll voting and result display.
+ * 
+ * @param	string		containerSelector
+ */
 WCF.Poll.Manager = Class.extend({
+	/**
+	 * template cache
+	 * @var	object
+	 */
 	_cache: { },
+	
+	/**
+	 * list of permissions
+	 * @var	object
+	 */
 	_canSeeResult: { },
+	
+	/**
+	 * list of permissions
+	 * @var	object
+	 */
 	_canVote: { },
-	_objectType: '',
+	
+	/**
+	 * list of poll objects
+	 * @var	object
+	 */
 	_polls: { },
+	
+	/**
+	 * action proxy
+	 * @var	WCF.Action.Proxy
+	 */
 	_proxy: null,
 	
-	init: function(objectType, containerSelector) {
+	/**
+	 * Intiailizes the poll manager.
+	 * 
+	 * @param	string		containerSelector
+	 */
+	init: function(containerSelector) {
 		var $polls = $(containerSelector);
 		if (!$polls.length) {
 			console.debug("[WCF.Poll.Manager] Given selector '" + containerSelector + "' does not match, aborting.");
-			return;
-		}
-		
-		this._objectType = objectType || '';
-		if (!this._objectType) {
-			console.debug("[WCF.Poll.Manager] Invalid object type given, aborting.");
 			return;
 		}
 		
@@ -199,6 +226,7 @@ WCF.Poll.Manager = Class.extend({
 			url: 'index.php/Poll/?t=' + SECURITY_TOKEN + SID_ARG_2ND
 		});
 		
+		// init polls
 		var self = this;
 		$polls.each(function(index, poll) {
 			var $poll = $(poll);
@@ -223,6 +251,11 @@ WCF.Poll.Manager = Class.extend({
 		});
 	},
 	
+	/**
+	 * Bind event listeners for current poll id.
+	 * 
+	 * @param	integer		pollID
+	 */
 	_bindListeners: function(pollID) {
 		if (this._canSeeResult[pollID]) {
 			this._polls[pollID].find('.jsPollShowResult:eq(0)').attr('pollID', pollID).click($.proxy(this._showResult, this));
@@ -233,6 +266,12 @@ WCF.Poll.Manager = Class.extend({
 		}
 	},
 	
+	/**
+	 * Displays poll result template.
+	 * 
+	 * @param	object		event
+	 * @param	integer		pollID
+	 */
 	_showResult: function(event, pollID) {
 		var $pollID = (event === null) ? pollID : $(event.currentTarget).data('pollID');
 		
@@ -242,12 +281,11 @@ WCF.Poll.Manager = Class.extend({
 		}
 		
 		// ignore request, we're within results already
-		var $inVote = this._polls[$pollID].data('inVote');
-		if (!$inVote) {
+		if (!this._polls[$pollID].data('inVote')) {
 			return;
 		}
 		
-		if (this._cache[$pollID].result) {
+		if (!this._cache[$pollID].result) {
 			this._proxy.setOption('data', {
 				actionName: 'getResult',
 				pollID: $pollID
@@ -265,31 +303,75 @@ WCF.Poll.Manager = Class.extend({
 		}
 	},
 	
-	_showVote: function(event) {
+	/**
+	 * Displays the vote template.
+	 * 
+	 * @param	object		event
+	 * @param	integer		pollID
+	 */
+	_showVote: function(event, pollID) {
+		var $pollID = (event === null) ? pollID : $(event.currentTarget).data('pollID');
 		
+		// user cannot vote (e.g. already voted or guest)
+		if (!this._canVote[$pollID]) {
+			return;
+		}
+		
+		// ignore request, we're within vote already
+		if (this._polls[$pollID].data('inVote')) {
+			return;
+		}
+		
+		if (!this._cache[$pollID].vote) {
+			this._proxy.setOption('data', {
+				actionName: 'getVote',
+				pollID: $pollID
+			});
+			this._proxy.sendRequest();
+		}
+		else {
+			// cache current output
+			if (!this._cache[$pollID].result) {
+				this._cache[$pollID].result = this._polls[$pollID].find('.pollInnerContainer').html();
+			}
+			
+			// show results from cache
+			this._polls[$pollID].find('.pollInnerContainer').html(this._cache[$pollID].vote);
+		}
 	},
 	
+	/**
+	 * Handles successful AJAX requests.
+	 * 
+	 * @param	object		data
+	 * @param	string		textStatus
+	 * @param	jQuery		jqXHR
+	 */
 	_success: function(data, textStatus, jqXHR) {
 		if (!data || !data.actionName) {
 			return;
 		}
 		
+		// updating result template
+		if (data.returnValues.resultTemplate) {
+			this._cache[data.returnValues.pollID].result = data.returnValues.resultTemplate;
+		}
+		
+		// updating vote template
+		if (data.returnValues.voteTemplate) {
+			this._cache[data.returnValues.pollID].vote = data.returnValues.voteTemplate;
+		}
+		
 		switch (data.actionName) {
 			case 'getResult':
-				
+				this._showResult(null, data.returnValues.pollID);
 			break;
 			
 			case 'getVote':
-				
+				this._showVote(null, data.returnValues.pollID);
 			break;
 			
 			case 'vote':
-				this._cache[data.returnValues.pollID].result = data.returnValues.resultTemplate;
-				
-				if (data.returnValues.voteTemplate) {
-					this._cache[data.returnValues.pollID].vote = data.returnValues.voteTemplate;
-				}
-				
 				// display results
 				this._canSeeResult[data.returnValues.pollID] = true;
 				this._showResult(null, data.returnValues.pollID);
@@ -297,10 +379,20 @@ WCF.Poll.Manager = Class.extend({
 		}
 	},
 	
+	/**
+	 * Binds event listener for vote template.
+	 * 
+	 * @param	integer		pollID
+	 */
 	_prepareVote: function(pollID) {
 		this._polls[pollID].find('.pollInnerContainer .jsSubmitVote').click($.proxy(this._vote, this));
 	},
 	
+	/**
+	 * Executes a user's vote.
+	 * 
+	 * @param	object		event
+	 */
 	_vote: function(event) {
 		var $pollID = $(event.currentTarget).data('pollID');
 		
