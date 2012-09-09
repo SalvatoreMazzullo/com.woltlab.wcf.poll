@@ -1,5 +1,5 @@
 {if !$__pollLoadedJavaScript|isset}
-	{assign var=$__pollLoadedJavaScript value=true}
+	{assign var=__pollLoadedJavaScript value=true}
 	<script type="text/javascript" src="{@$__wcf->getPath()}js/WCF.Poll.js"></script>
 	<script type="text/javascript">
 		//<![CDATA[
@@ -25,12 +25,8 @@
 		</div>
 	</fieldset>
 	
-	{hascontent}
-		<div class="formSubmit">
-			{content}
-				{if $poll->canVote()}<button class="jsPollVote">{lang}wcf.poll.button.showVote{/lang}</button>{/if}
-				{if !$poll->isFinished && $poll->canSeeResult()}<button class="jsPollResult">{lang}wcf.poll.button.showResult{/lang}</button>{/if}
-			{/content}
-		</div>
-	{/hascontent}
+	<div class="formSubmit">
+		<button class="small jsPollVote">{lang}wcf.poll.button.showVote{/lang}</button>
+		<button class="small jsPollResult">{lang}wcf.poll.button.showResult{/lang}</button>
+	</div>
 </div>

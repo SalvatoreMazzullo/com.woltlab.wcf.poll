@@ -11,5 +11,5 @@
 {if $poll->maxVotes > 1}<small>{lang}wcf.poll.multipleVotes{/lang}</small>{/if}
 
 <div class="formSubmit">
-	<button class="jsSubmitVote" data-poll-id="{@$poll->pollID}">{lang}wcf.poll.button.vote{/lang}</button>
+	<button class="small jsSubmitVote" data-poll-id="{@$poll->pollID}">{lang}wcf.poll.button.vote{/lang}</button>
 </div>

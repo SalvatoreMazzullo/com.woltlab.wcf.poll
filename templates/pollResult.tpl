@@ -1,7 +1,11 @@
 <ol class="pollResultList">
 	{foreach from=$poll->getOptions() item=option}
 		<li>
-			<meter value="{@$option->votes}" max="{@$poll->votes}">{@$option->getRelativeVotes($poll)}%</meter> <span>{@$option->getRelativeVotes($poll)}%</span>
+			<div class="pollResultItem">
+				<span class="pollMeter pollMeter{@$option->getColorID()}" style="width: {@$option->getRelativeVotes($poll)}%">&nbsp;</span>
+			</div>
+			<small class="relativeVotes">{@$option->getRelativeVotes($poll)}%</small>
+			<small>{$option->optionValue} ({#$option->votes})</small>
 		</li>
 	{/foreach}
 </ol>

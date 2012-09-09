@@ -14,6 +14,13 @@ use wcf\data\poll\Poll;
  */
 interface IPollHandler {
 	/**
+	 * Returns true, if current user may vote.
+	 * 
+	 * @return	boolean
+	 */
+	public function canVote();
+	
+	/**
 	 * Validates if given poll object is accessible for current user.
 	 * 
 	 * @param	wcf\data\poll\Poll	$poll

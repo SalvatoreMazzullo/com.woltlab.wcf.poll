@@ -45,4 +45,15 @@ class PollEditor extends DatabaseObjectEditor {
 		$statement = WCF::getDB()->prepareStatement($sql);
 		$statement->execute(array($this->pollID));
 	}
+	
+	/**
+	 * Increase votes by one.
+	 */
+	public function increaseVotes() {
+		$sql = "UPDATE	wcf".WCF_N."_poll
+			SET	votes = votes + 1
+			WHERE	pollID = ?";
+		$statement = WCF::getDB()->prepareStatement($sql);
+		$statement->execute(array($this->pollID));
+	}
 }

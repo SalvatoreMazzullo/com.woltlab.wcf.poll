@@ -147,9 +147,11 @@ class PollAction extends AbstractDatabaseObjectAction {
 	 * Executes a user's vote.
 	 */
 	public function vote() {
+		$poll = current($this->objects);
+		
 		// remove previous vote
 		$conditions = new PreparedStatementConditionBuilder();
-		$conditions->add("pollID = ?", array(current($this->objects)));
+		$conditions->add("pollID = ?", array($poll->pollID));
 		if (WCF::getUser()->userID) {
 			$conditions->add("userID = ?", array(WCF::getUser()->userID));
 		}
@@ -163,18 +165,24 @@ class PollAction extends AbstractDatabaseObjectAction {
 			".$conditions;
 		$statement = WCF::getDB()->prepareStatement($sql);
 		$statement->execute($conditions->getParameters());
+		$count = $statement->getAffectedRows();
 		
 		// insert new vote
 		$sql = "INSERT INTO	wcf".WCF_N."_poll_option_vote
-					(optionID, userID, ipAddress)
-			VALUES		(?, ?, ?)";
+					(pollID, optionID, userID, ipAddress)
+			VALUES		(?, ?, ?, ?)";
 		$statement = WCF::getDB()->prepareStatement($sql);
 		foreach ($this->parameters['optionIDs'] as $optionID) {
 			$statement->execute(array(
+				$poll->pollID,
 				$optionID,
 				(WCF::getUser()->userID ? WCF::getUser()->userID : null),
 				UserUtil::getIpAddress()
 			));
+		}
+		
+		if (!$count) {
+			$poll->increaseVotes();
 		}
 	}
 }

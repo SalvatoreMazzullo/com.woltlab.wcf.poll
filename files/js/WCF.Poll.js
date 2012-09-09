@@ -247,6 +247,8 @@ WCF.Poll.Manager = Class.extend({
 				if ($poll.data('inVote')) {
 					self._prepareVote($pollID);
 				}
+				
+				self._toggleButtons($pollID);
 			}
 		});
 	},
@@ -257,13 +259,8 @@ WCF.Poll.Manager = Class.extend({
 	 * @param	integer		pollID
 	 */
 	_bindListeners: function(pollID) {
-		if (this._canSeeResult[pollID]) {
-			this._polls[pollID].find('.jsPollShowResult:eq(0)').attr('pollID', pollID).click($.proxy(this._showResult, this));
-		}
-		
-		if (this._canVote[pollID]) {
-			this._polls[pollID].find('.jsPollVote:eq(0)').attr('pollID', pollID).click($.proxy(this._showVote, this));
-		}
+		this._polls[pollID].find('.jsPollResult').attr('pollID', pollID).click($.proxy(this._showResult, this));
+		this._polls[pollID].find('.jsPollVote').attr('pollID', pollID).click($.proxy(this._showVote, this));
 	},
 	
 	/**
@@ -352,31 +349,40 @@ WCF.Poll.Manager = Class.extend({
 			return;
 		}
 		
+		var $pollID = data.returnValues.pollID;
+		
 		// updating result template
 		if (data.returnValues.resultTemplate) {
-			this._cache[data.returnValues.pollID].result = data.returnValues.resultTemplate;
+			this._cache[$pollID].result = data.returnValues.resultTemplate;
 		}
 		
 		// updating vote template
 		if (data.returnValues.voteTemplate) {
-			this._cache[data.returnValues.pollID].vote = data.returnValues.voteTemplate;
+			this._cache[$pollID].vote = data.returnValues.voteTemplate;
 		}
 		
 		switch (data.actionName) {
 			case 'getResult':
-				this._showResult(null, data.returnValues.pollID);
+				this._showResult(null, $pollID);
+				this._polls[$pollID].data('inVote', false);
 			break;
 			
 			case 'getVote':
-				this._showVote(null, data.returnValues.pollID);
+				this._showVote(null, $pollID);
+				this._polls[$pollID].data('inVote', true);
 			break;
 			
 			case 'vote':
 				// display results
-				this._canSeeResult[data.returnValues.pollID] = true;
-				this._showResult(null, data.returnValues.pollID);
+				this._canSeeResult[$pollID] = true;
+				this._showResult(null, $pollID);
+				
+				this._canVote[$pollID] = (data.returnValues.canVote) ? true : false;
+				this._polls[$pollID].data('inVote', false);
 			break;
 		}
+		
+		this._toggleButtons($pollID);
 	},
 	
 	/**
@@ -386,6 +392,27 @@ WCF.Poll.Manager = Class.extend({
 	 */
 	_prepareVote: function(pollID) {
 		this._polls[pollID].find('.pollInnerContainer .jsSubmitVote').click($.proxy(this._vote, this));
+	},
+	
+	/**
+	 * Toggles buttons for given poll id.
+	 * 
+	 * @param	integer		pollID
+	 */
+	_toggleButtons: function(pollID) {
+		this._polls[pollID].find('.jsPollResult').hide();
+		this._polls[pollID].find('.jsPollVote').hide();
+		
+		if (this._polls[pollID].data('inVote')) {
+			if (this._canSeeResult[pollID]) {
+				this._polls[pollID].find('.jsPollResult').show();
+			}
+		}
+		else {
+			if (this._canVote[pollID]) {
+				this._polls[pollID].find('.jsPollVote').show();
+			}
+		}
 	},
 	
 	/**
@@ -402,7 +429,7 @@ WCF.Poll.Manager = Class.extend({
 		}
 		
 		// collect values
-		$optionIDs = [ ];
+		var $optionIDs = [ ];
 		this._polls[$pollID].find('.pollInnerContainer input').each(function(index, input) {
 			var $input = $(input);
 			if ($input.is(':checked')) {
@@ -410,7 +437,7 @@ WCF.Poll.Manager = Class.extend({
 			}
 		});
 		
-		if ($optionsIDs.length) {
+		if ($optionIDs.length) {
 			this._proxy.setOption('data', {
 				actionName: 'vote',
 				optionIDs: $optionIDs,

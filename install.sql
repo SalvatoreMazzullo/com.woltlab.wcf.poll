@@ -25,7 +25,8 @@ CREATE TABLE wcf1_poll_option (
 
 DROP TABLE IF EXISTS wcf1_poll_option_vote;
 CREATE TABLE wcf1_poll_option_vote (
-	optionID INT(10) NOT NULL DEFAULT 0,
+	pollID INT(10) NOT NULL,
+	optionID INT(10) NOT NULL,
 	userID INT(10) NULL,
 	ipAddress VARCHAR(39) NOT NULL DEFAULT ''
 );
@@ -34,5 +35,6 @@ ALTER TABLE wcf1_poll ADD FOREIGN KEY (objectTypeID) REFERENCES wcf1_object_type
 
 ALTER TABLE wcf1_poll_option ADD FOREIGN KEY (pollID) REFERENCES wcf1_poll (pollID) ON DELETE CASCADE;
 
+ALTER TABLE wcf1_poll_option_vote ADD FOREIGN KEY (pollID) REFERENCES wcf1_poll (pollID) ON DELETE CASCADE;
 ALTER TABLE wcf1_poll_option_vote ADD FOREIGN KEY (optionID) REFERENCES wcf1_poll_option (optionID) ON DELETE CASCADE;
 ALTER TABLE wcf1_poll_option_vote ADD FOREIGN KEY (userID) REFERENCES wcf1_user (userID) ON DELETE CASCADE;

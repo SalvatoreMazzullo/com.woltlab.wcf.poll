@@ -1,7 +1,7 @@
 <?php
 namespace wcf\action;
 use wcf\data\poll\Poll;
-use wcf\data\poll\PollAction;
+use wcf\system\exception\IllegalLinkException;
 use wcf\system\exception\PermissionDeniedException;
 use wcf\system\exception\SystemException;
 use wcf\system\exception\UserInputException;
@@ -44,6 +44,10 @@ class PollAction extends AJAXProxyAction {
 	 * @see	wcf\action\IAction::readParameters()
 	 */
 	public function readParameters() {
+		if (!MODULE_POLL) {
+			throw new IllegalLinkException();
+		}
+		
 		AbstractSecureAction::readParameters();
 		
 		if (isset($_POST['actionName'])) $this->actionName = StringUtil::trim($_POST['actionName']);
@@ -70,7 +74,7 @@ class PollAction extends AJAXProxyAction {
 			$statement->execute(array($this->poll->pollID));
 			$optionIDs = array();
 			while ($row = $statement->fetchArray()) {
-				$optionIDs[] = $row;
+				$optionIDs[] = $row['optionID'];
 			}
 			
 			foreach ($this->optionIDs as $optionID) {
@@ -146,8 +150,11 @@ class PollAction extends AJAXProxyAction {
 	 * @param	array<mixed>	$returnValues
 	 */
 	protected function vote(array &$returnValues) {
-		$pollAction = new PollAction(array($this->poll), 'vote', array('optionIDs' => $this->optionIDs));
+		$pollAction = new \wcf\data\poll\PollAction(array($this->poll), 'vote', array('optionIDs' => $this->optionIDs));
 		$pollAction->executeAction();
+		
+		// update poll object
+		$this->poll = new Poll($this->poll->pollID);
 		
 		// render result template
 		$this->getResult($returnValues);
@@ -156,5 +163,7 @@ class PollAction extends AJAXProxyAction {
 		if ($this->poll->isChangeable) {
 			$this->getVote($returnValues);
 		}
+		
+		$returnValues['canVote'] = ($this->poll->isChangeable) ? 1 : 0;
 	}
 }
