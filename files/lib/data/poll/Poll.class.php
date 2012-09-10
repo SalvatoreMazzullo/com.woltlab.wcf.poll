@@ -4,7 +4,6 @@ use wcf\data\poll\option\PollOptionList;
 use wcf\data\DatabaseObject;
 use wcf\system\database\util\PreparedStatementConditionBuilder;
 use wcf\system\WCF;
-use wcf\util\UserUtil;
 
 /**
  * Represents a poll.
@@ -78,14 +77,7 @@ class Poll extends DatabaseObject {
 		// read participation state
 		$conditions = new PreparedStatementConditionBuilder();
 		$conditions->add("optionID IN (?)", array(array_keys($this->options)));
-		if (WCF::getUser()->userID) {
-			$conditions->add("userID = ?", array(WCF::getUser()->userID));
-		}
-		else {
-			// guests
-			$conditions->add("userID IS NULL");
-			$conditions->add("ipAddress = ?", array(UserUtil::getIpAddress()));
-		}
+		$conditions->add("userID = ?", array(WCF::getUser()->userID));
 			
 		$sql = "SELECT	optionID
 			FROM	wcf".WCF_N."_poll_option_vote
@@ -118,8 +110,8 @@ class Poll extends DatabaseObject {
 	 * @return	boolean
 	 */
 	public function canVote() {
-		// guest voting is not possible without ip logging
-		if (!LOG_IP_ADDRESS && !WCF::getUser()->userID) {
+		// guest voting is not possible
+		if (!WCF::getUser()->userID) {
 			return false;
 		}
 		else if ($this->isFinished()) {
@@ -138,7 +130,7 @@ class Poll extends DatabaseObject {
 	 * @return	boolean
 	 */
 	public function canSeeResult() {
-		if ((!LOG_IP_ADDRESS && !WCF::getUser()->userID) || $this->isFinished() || $this->isParticipant() || !$this->resultsRequireVote) {
+		if ($this->isFinished() || $this->isParticipant() || !$this->resultsRequireVote) {
 			return true;
 		}
 		

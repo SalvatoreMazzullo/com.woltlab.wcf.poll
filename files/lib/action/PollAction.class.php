@@ -23,6 +23,11 @@ use wcf\util\StringUtil;
  */
 class PollAction extends AJAXProxyAction {
 	/**
+	 * @see	wcf\action\AbstractAction::$loginRequired
+	 */
+	public $loginRequired = true;
+	
+	/**
 	 * list of option ids
 	 * @var	array<integer>
 	 */
