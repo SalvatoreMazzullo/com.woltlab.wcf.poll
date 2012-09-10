@@ -10,11 +10,9 @@
 	</script>
 {/if}
 
-<div class="container containerPadding pollContainer" data-poll-id="{@$poll->pollID}" data-can-vote="{if $poll->canVote()}1{else}0{/if}" data-can-view-result="{if $poll->canSeeResult()}1{else}0{/if}" data-in-vote="{if $poll->canVote() && !$poll->isParticipant()}1{else}0{/if}">
+<div class="container containerPadding pollContainer" data-poll-id="{@$poll->pollID}" data-can-vote="{if $poll->canVote()}1{else}0{/if}" data-can-view-result="{if $poll->canSeeResult()}1{else}0{/if}" data-in-vote="{if $poll->canVote() && !$poll->isParticipant()}1{else}0{/if}" data-question="{$poll->question}">
 	<fieldset>
-		<legend>{$poll->question}</legend>
-		
-		<small class="jsPollAllVotes">{if $poll->isPublic}<a>{/if}{lang}wcf.poll.totalVotes{/lang}{if $poll->isPublic}</a>{/if} <span class="badge">{#$poll->votes}</span></small>
+		<legend>{$poll->question} <span class="badge jsTooltip" title="{lang}wcf.poll.totalVotes{/lang}">{#$poll->votes}</span></legend>
 		
 		<div class="pollInnerContainer">
 			{if !$__wcf->getUser()->userID}

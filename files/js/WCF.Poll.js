@@ -195,6 +195,12 @@ WCF.Poll.Manager = Class.extend({
 	_canVote: { },
 	
 	/**
+	 * list of participant lists
+	 * @var	object
+	 */
+	_participants: { },
+	
+	/**
 	 * list of poll objects
 	 * @var	object
 	 */
@@ -220,6 +226,7 @@ WCF.Poll.Manager = Class.extend({
 		
 		this._cache = { };
 		this._canViewResult = { };
+		this._participants = { };
 		this._polls = { };
 		this._proxy = new WCF.Action.Proxy({
 			success: $.proxy(this._success, this),
@@ -246,6 +253,9 @@ WCF.Poll.Manager = Class.extend({
 				
 				if ($poll.data('inVote')) {
 					self._prepareVote($pollID);
+				}
+				else {
+					$poll.find('.jsPollShowParticipants').data('pollID', $pollID).click($.proxy(self._showParticipants, self));
 				}
 				
 				self._toggleButtons($pollID);
@@ -290,11 +300,6 @@ WCF.Poll.Manager = Class.extend({
 			this._proxy.sendRequest();
 		}
 		else {
-			// cache current output
-			if (!this._cache[$pollID].vote) {
-				this._cache[$pollID].vote = this._polls[$pollID].find('.pollInnerContainer').html();
-			}
-			
 			// show results from cache
 			this._polls[$pollID].find('.pollInnerContainer').html(this._cache[$pollID].result);
 			
@@ -303,7 +308,24 @@ WCF.Poll.Manager = Class.extend({
 			
 			// toggle buttons
 			this._toggleButtons($pollID);
+			
+			// bind event listener
+			this._polls[$pollID].find('.jsPollShowParticipants').data('pollID', $pollID).click($.proxy(this._showParticipants, this));
 		}
+	},
+	
+	/**
+	 * Displays a list of participants.
+	 * 
+	 * @param	object		event
+	 */
+	_showParticipants: function(event) {
+		var $pollID = $(event.currentTarget).data('pollID');
+		if (!this._participants[$pollID]) {
+			this._participants[$pollID] = new WCF.User.List('wcf\\data\\poll\\PollAction', this._polls[$pollID].data('question'), { pollID: $pollID });
+		}
+		
+		this._participants[$pollID].open();
 	},
 	
 	/**
@@ -333,12 +355,7 @@ WCF.Poll.Manager = Class.extend({
 			this._proxy.sendRequest();
 		}
 		else {
-			// cache current output
-			if (!this._cache[$pollID].result) {
-				this._cache[$pollID].result = this._polls[$pollID].find('.pollInnerContainer').html();
-			}
-			
-			// show results from cache
+			// show vote from cache
 			this._polls[$pollID].find('.pollInnerContainer').html(this._cache[$pollID].vote);
 			
 			// set vote state

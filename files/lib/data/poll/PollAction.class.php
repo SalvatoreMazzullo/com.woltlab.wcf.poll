@@ -3,6 +3,10 @@ namespace wcf\data\poll;
 use wcf\data\poll\PollEditor;
 use wcf\data\poll\option\PollOptionList;
 use wcf\data\AbstractDatabaseObjectAction;
+use wcf\data\IGroupedUserListAction;
+use wcf\system\exception\PermissionDeniedException;
+use wcf\system\exception\UserInputException;
+use wcf\system\user\GroupedUserList;
 use wcf\system\WCF;
 
 /**
@@ -15,11 +19,17 @@ use wcf\system\WCF;
  * @subpackage	data.poll
  * @category 	Community Framework
  */
-class PollAction extends AbstractDatabaseObjectAction {
+class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserListAction {
 	/**
 	 * @see wcf\data\AbstractDatabaseObjectAction::$className
 	 */
 	protected $className = 'wcf\data\poll\PollEditor';
+	
+	/**
+	 * poll object
+	 * @var	wcf\data\poll\Poll
+	 */
+	protected $poll = null;
 	
 	/**
 	 * @see	wcf\data\AbstractDatabaseObjectAction::create()
@@ -225,5 +235,70 @@ class PollAction extends AbstractDatabaseObjectAction {
 		if (!$alreadyVoted) {
 			$poll->increaseVotes();
 		}
+	}
+	
+	/**
+	 * @see	wcf\data\IGroupedUserListAction::validateGetUserList()
+	 */
+	public function validateGetUserList() {
+		$this->parameters['pollID'] = (isset($this->parameters['pollID'])) ? intval($this->parameters['pollID']) : 0;
+		
+		// read poll
+		$this->poll = new Poll($this->parameters['pollID']);
+		if (!$this->poll->pollID) {
+			throw new UserInputException('pollID');
+		}
+		else if (!$this->poll->isPublic || !$this->poll->canSeeResult()) {
+			throw new PermissionDeniedException();
+		}
+	}
+	
+	/**
+	 * @see	wcf\data\IGroupedUserListAction::getUserList()
+	 */
+	public function getUserList() {
+		// get options
+		$sql = "SELECT		optionID, optionValue
+			FROM		wcf".WCF_N."_poll_option
+			WHERE		pollID = ?
+			ORDER BY	".($this->poll->sortByVotes ? "votes DESC" : "showOrder ASC");
+		$statement = WCF::getDB()->prepareStatement($sql);
+		$statement->execute(array($this->poll->pollID));
+		$options = array();
+		while ($row = $statement->fetchArray()) {
+			$options[$row['optionID']] = new GroupedUserList($row['optionValue'], 'wcf.poll.noVotes');
+		}
+		
+		// get votes
+		$sql = "SELECT	userID, optionID
+			FROM	wcf".WCF_N."_poll_option_vote
+			WHERE	pollID = ?";
+		$statement = WCF::getDB()->prepareStatement($sql);
+		$statement->execute(array($this->poll->pollID));
+		$voteData = array();
+		while ($row = $statement->fetchArray()) {
+			if (!isset($voteData[$row['optionID']])) {
+				$voteData[$row['optionID']] = array();
+			}
+			
+			$voteData[$row['optionID']][] = $row['userID'];
+		}
+		
+		// assign user ids
+		foreach ($voteData as $optionID => $userIDs) {
+			$options[$optionID]->addUserIDs($userIDs);
+		}
+		
+		// load user profiles
+		GroupedUserList::loadUsers();
+		
+		WCF::getTPL()->assign(array(
+			'groupedUsers' => $options
+		));
+		
+		return array(
+			'pageCount' => 1,
+			'template' => WCF::getTPL()->fetch('groupedUserList')
+		);
 	}
 }
