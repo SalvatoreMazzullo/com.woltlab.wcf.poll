@@ -186,7 +186,7 @@ WCF.Poll.Manager = Class.extend({
 	 * list of permissions
 	 * @var	object
 	 */
-	_canSeeResult: { },
+	_canViewResult: { },
 	
 	/**
 	 * list of permissions
@@ -219,7 +219,7 @@ WCF.Poll.Manager = Class.extend({
 		}
 		
 		this._cache = { };
-		this._canSeeResult = { };
+		this._canViewResult = { };
 		this._polls = { };
 		this._proxy = new WCF.Action.Proxy({
 			success: $.proxy(this._success, this),
@@ -239,7 +239,7 @@ WCF.Poll.Manager = Class.extend({
 				};
 				self._polls[$pollID] = $poll;
 				
-				self._canSeeResult[$pollID] = ($poll.data('canSeeResult')) ? true : false;
+				self._canViewResult[$pollID] = ($poll.data('canViewResult')) ? true : false;
 				self._canVote[$pollID] = ($poll.data('canVote')) ? true : false;
 				
 				self._bindListeners($pollID);
@@ -259,8 +259,8 @@ WCF.Poll.Manager = Class.extend({
 	 * @param	integer		pollID
 	 */
 	_bindListeners: function(pollID) {
-		this._polls[pollID].find('.jsPollResult').attr('pollID', pollID).click($.proxy(this._showResult, this));
-		this._polls[pollID].find('.jsPollVote').attr('pollID', pollID).click($.proxy(this._showVote, this));
+		this._polls[pollID].find('.jsPollResult').data('pollID', pollID).click($.proxy(this._showResult, this));
+		this._polls[pollID].find('.jsPollVote').data('pollID', pollID).click($.proxy(this._showVote, this));
 	},
 	
 	/**
@@ -273,7 +273,7 @@ WCF.Poll.Manager = Class.extend({
 		var $pollID = (event === null) ? pollID : $(event.currentTarget).data('pollID');
 		
 		// user cannot see the results yet
-		if (!this._canSeeResult[pollID]) {
+		if (!this._canViewResult[$pollID]) {
 			return;
 		}
 		
@@ -297,6 +297,12 @@ WCF.Poll.Manager = Class.extend({
 			
 			// show results from cache
 			this._polls[$pollID].find('.pollInnerContainer').html(this._cache[$pollID].result);
+			
+			// set vote state
+			this._polls[$pollID].data('inVote', false);
+			
+			// toggle buttons
+			this._toggleButtons($pollID);
 		}
 	},
 	
@@ -334,6 +340,13 @@ WCF.Poll.Manager = Class.extend({
 			
 			// show results from cache
 			this._polls[$pollID].find('.pollInnerContainer').html(this._cache[$pollID].vote);
+			
+			// set vote state
+			this._polls[$pollID].data('inVote', true);
+			
+			// bind event listener and toggle buttons
+			this._prepareVote($pollID);
+			this._toggleButtons($pollID);
 		}
 	},
 	
@@ -349,40 +362,34 @@ WCF.Poll.Manager = Class.extend({
 			return;
 		}
 		
-		var $pollID = data.returnValues.pollID;
+		var $pollID = data.pollID;
 		
 		// updating result template
-		if (data.returnValues.resultTemplate) {
-			this._cache[$pollID].result = data.returnValues.resultTemplate;
+		if (data.resultTemplate) {
+			this._cache[$pollID].result = data.resultTemplate;
 		}
 		
 		// updating vote template
-		if (data.returnValues.voteTemplate) {
-			this._cache[$pollID].vote = data.returnValues.voteTemplate;
+		if (data.voteTemplate) {
+			this._cache[$pollID].vote = data.voteTemplate;
 		}
 		
 		switch (data.actionName) {
 			case 'getResult':
 				this._showResult(null, $pollID);
-				this._polls[$pollID].data('inVote', false);
 			break;
 			
 			case 'getVote':
 				this._showVote(null, $pollID);
-				this._polls[$pollID].data('inVote', true);
 			break;
 			
 			case 'vote':
 				// display results
-				this._canSeeResult[$pollID] = true;
+				this._canViewResult[$pollID] = true;
+				this._canVote[$pollID] = (data.canVote) ? true : false;
 				this._showResult(null, $pollID);
-				
-				this._canVote[$pollID] = (data.returnValues.canVote) ? true : false;
-				this._polls[$pollID].data('inVote', false);
 			break;
 		}
-		
-		this._toggleButtons($pollID);
 	},
 	
 	/**
@@ -404,7 +411,7 @@ WCF.Poll.Manager = Class.extend({
 		this._polls[pollID].find('.jsPollVote').hide();
 		
 		if (this._polls[pollID].data('inVote')) {
-			if (this._canSeeResult[pollID]) {
+			if (this._canViewResult[pollID]) {
 				this._polls[pollID].find('.jsPollResult').show();
 			}
 		}
