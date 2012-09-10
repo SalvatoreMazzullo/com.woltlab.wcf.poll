@@ -27,7 +27,8 @@ DROP TABLE IF EXISTS wcf1_poll_option_vote;
 CREATE TABLE wcf1_poll_option_vote (
 	pollID INT(10) NOT NULL,
 	optionID INT(10) NOT NULL,
-	userID INT(10) NOT NULL
+	userID INT(10) NOT NULL,
+	UNIQUE KEY vote (pollID, optionID, userID)
 );
 
 ALTER TABLE wcf1_poll ADD FOREIGN KEY (objectTypeID) REFERENCES wcf1_object_type (objectTypeID) ON DELETE CASCADE;

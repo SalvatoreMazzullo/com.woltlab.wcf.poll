@@ -147,31 +147,82 @@ class PollAction extends AbstractDatabaseObjectAction {
 	public function vote() {
 		$poll = current($this->objects);
 		
-		// remove previous vote
-		$sql = "DELETE FROM	wcf".WCF_N."_poll_option_vote
-			WHERE		pollID = ?
-					AND userID = ?";
+		// get previous vote
+		$sql = "SELECT	optionID
+			FROM	wcf".WCF_N."_poll_option_vote
+			WHERE	pollID = ?
+				AND userID = ?";
 		$statement = WCF::getDB()->prepareStatement($sql);
 		$statement->execute(array(
 			$poll->pollID,
 			WCF::getUser()->userID
 		));
-		$count = $statement->getAffectedRows();
-		
-		// insert new vote
-		$sql = "INSERT INTO	wcf".WCF_N."_poll_option_vote
-					(pollID, optionID, userID)
-			VALUES		(?, ?, ?)";
-		$statement = WCF::getDB()->prepareStatement($sql);
-		foreach ($this->parameters['optionIDs'] as $optionID) {
-			$statement->execute(array(
-				$poll->pollID,
-				$optionID,
-				WCF::getUser()->userID
-			));
+		$alreadyVoted = false;
+		$optionIDs = array();
+		while ($row = $statement->fetchArray()) {
+			$alreadyVoted = true;
+			$optionIDs[] = $row['optionID'];
 		}
 		
-		if (!$count) {
+		// calculate the difference
+		foreach ($this->parameters['optionIDs'] as $index => $optionID) {
+			$optionsIndex = array_search($optionID, $optionIDs);
+			if ($optionsIndex !== false) {
+				// ignore this option
+				unset($this->parameters['optionIDs'][$index]);
+				unset($optionIDs[$optionsIndex]);
+			}
+		}
+		
+		// insert new vote options
+		if (!empty($this->parameters['optionIDs'])) {
+			$sql = "INSERT INTO	wcf".WCF_N."_poll_option_vote
+						(pollID, optionID, userID)
+				VALUES		(?, ?, ?)";
+			$statement = WCF::getDB()->prepareStatement($sql);
+			foreach ($this->parameters['optionIDs'] as $optionID) {
+				$statement->execute(array(
+					$poll->pollID,
+					$optionID,
+					WCF::getUser()->userID
+				));
+			}
+			
+			// increase votes per option
+			$sql = "UPDATE	wcf".WCF_N."_poll_option
+				SET	votes = votes + 1
+				WHERE	optionID = ?";
+			$statement = WCF::getDB()->prepareStatement($sql);
+			foreach ($this->parameters['optionIDs'] as $optionID) {
+				$statement->execute(array($optionID));
+			}
+		}
+		
+		// remove previous options
+		if (!empty($optionIDs)) {
+			$sql = "DELETE FROM	wcf".WCF_N."_poll_option_vote
+				WHERE		optionID = ?
+						AND userID = ?";
+			$statement = WCF::getDB()->prepareStatement($sql);
+			foreach ($optionIDs as $optionID) {
+				$statement->execute(array(
+					$optionID,
+					WCF::getUser()->userID
+				));
+			}
+			
+			// decrease votes per option
+			$sql = "UPDATE	wcf".WCF_N."_poll_option
+				SET	votes = votes - 1
+				WHERE	optionID = ?";
+			$statement = WCF::getDB()->prepareStatement($sql);
+			foreach ($optionIDs as $optionID) {
+				$statement->execute(array($optionID));
+			}
+		}
+		
+		// increase poll votes
+		if (!$alreadyVoted) {
 			$poll->increaseVotes();
 		}
 	}
