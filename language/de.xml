@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language xmlns="http://www.woltlab.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.woltlab.com http://www.woltlab.com/XSD/maelstrom/language.xsd" languagecode="de">
+	<category name="wcf.poll">
+		<item name="wcf.poll.button.showParticipants"><![CDATA[Teilnehmer auflisten]]></item>
+		<item name="wcf.poll.button.showResult"><![CDATA[Ergebnis anzeigen]]></item>
+		<item name="wcf.poll.button.showVote"><![CDATA[Zur Abstimmung]]></item>
+		<item name="wcf.poll.button.vote"><![CDATA[Abstimmen]]></item>
+		<item name="wcf.poll.endTime"><![CDATA[Umfrage endet (optional)]]></item>
+		<item name="wcf.poll.isChangeable"><![CDATA[Abgegebene Stimmen dürfen verändert werden]]></item>
+		<item name="wcf.poll.isPublic"><![CDATA[Teilnehmer sind sichtbar]]></item>
+		<item name="wcf.poll.management"><![CDATA[Umfrage]]></item>
+		<item name="wcf.poll.maxVotes"><![CDATA[Anzahl erlaubter Antworten]]></item>
+		<item name="wcf.poll.options"><![CDATA[Antworten]]></item>
+		<item name="wcf.poll.options.description"><![CDATA[Sie können die Antworten mittels Drücken und Festhalten in ihrer Reihenfolge ändern. Sie können {@POLL_MAX_OPTIONS} Antwortmöglichkeiten vorgeben.]]></item>
+		<item name="wcf.poll.question"><![CDATA[Frage]]></item>
+		<item name="wcf.poll.restrictedResult"><![CDATA[Das Ergebnis nur für Teilnehmer sichtbar]]></item>
+		<item name="wcf.poll.resultsRequireVote"><![CDATA[Ergebnis erst nach Abgabe der Stimme sichtbar]]></item>
+		<item name="wcf.poll.sortByVotes"><![CDATA[Ergebnis nach Stimmen sortieren]]></item>
+		<item name="wcf.poll.totalVotes"><![CDATA[Insgesamt {#$poll->votes} Stimme{if $poll->votes != 1}n{/if}]]></item>
+	</category>
+</language>

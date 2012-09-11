@@ -24,5 +24,6 @@
 		<instruction type="objectTypeDefinition">objectTypeDefinition.xml</instruction>
 		<instruction type="templateListener">templateListener.xml</instruction>
 		<instruction type="option">option.xml</instruction>
+		<instruction type="language">language/*.xml</instruction>
 	</instructions>
 </package>

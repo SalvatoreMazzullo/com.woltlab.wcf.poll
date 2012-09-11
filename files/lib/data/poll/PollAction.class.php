@@ -238,9 +238,9 @@ class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserLis
 	}
 	
 	/**
-	 * @see	wcf\data\IGroupedUserListAction::validateGetUserList()
+	 * @see	wcf\data\IGroupedUserListAction::validateGetGroupedUserList()
 	 */
-	public function validateGetUserList() {
+	public function validateGetGroupedUserList() {
 		$this->parameters['pollID'] = (isset($this->parameters['pollID'])) ? intval($this->parameters['pollID']) : 0;
 		
 		// read poll
@@ -254,9 +254,9 @@ class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserLis
 	}
 	
 	/**
-	 * @see	wcf\data\IGroupedUserListAction::getUserList()
+	 * @see	wcf\data\IGroupedUserListAction::getGroupedUserList()
 	 */
-	public function getUserList() {
+	public function getGroupedUserList() {
 		// get options
 		$sql = "SELECT		optionID, optionValue
 			FROM		wcf".WCF_N."_poll_option
