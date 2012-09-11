@@ -14,6 +14,13 @@ use wcf\data\poll\Poll;
  */
 interface IPollHandler {
 	/**
+	 * Returns true, if current user may start a public poll.
+	 * 
+	 * @return	boolean
+	 */
+	public function canStartPublicPoll();
+	
+	/**
 	 * Returns true, if current user may vote.
 	 * 
 	 * @return	boolean

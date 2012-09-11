@@ -121,7 +121,7 @@ class PollManager extends SingletonFactory {
 		$this->pollData['sortByVotes'] = (isset($_POST['pollSortByVotes'])) ? 1 : 0;
 		
 		if ($this->poll === null) {
-			$this->pollData['isPublic'] = (isset($_POST['pollIsPublic'])) ? 1 : 0;
+			$this->pollData['isPublic'] = (isset($_POST['pollIsPublic']) && $this->canStartPublicPoll()) ? 1 : 0;
 		}
 		else {
 			// visibility cannot be changed after creation
@@ -256,36 +256,71 @@ class PollManager extends SingletonFactory {
 	 * @param	wcf\data\poll\Poll	$poll
 	 */
 	public function validatePermissions(Poll $poll) {
-		$objectType = null;
-		foreach ($this->cache as $objectTypeObj) {
-			if ($objectTypeObj->objectTypeID == $poll->objectTypeID) {
-				$objectType = $objectTypeObj;
+		$handler = $this->getHandler($poll->objectTypeID);
+		if ($handler === false) {
+			// accessing an unknown poll, e.g. from a different environment
+			throw new PermissionDeniedException();
+		}
+		else if ($handler !== null) {
+			try {
+				$handler->validate($poll);
+			}
+			catch (\Exception $e) {
+				throw new PermissionDeniedException();
+			}
+		}
+	}
+	
+	/**
+	 * Returns true, if current user can start a public poll.
+	 * 
+	 * @return	boolean
+	 */
+	public function canStartPublicPoll() {
+		$handler = $this->getHandler(null, $this->objectType);
+		if ($handler !== null) {
+			return $handler->canStartPublicPoll();
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Returns the handler object for given object type. Returns false if object type (id)
+	 * is not found, or null if no handler is assigned.
+	 * 
+	 * @param	integer		$objectTypeID
+	 * @param	string		$objectType
+	 * @return	mixed
+	 */
+	protected function getHandler($objectTypeID, $objectType = '') {
+		if ($objectTypeID !== null) {
+			foreach ($this->cache as $objectTypeObj) {
+				if ($objectTypeObj->objectTypeID == $objectTypeID) {
+					$objectType = $objectTypeObj->objectType;
+					break;
+				}
 			}
 		}
 		
-		// accessing an unknown poll, e.g. from a different environment
-		if ($objectType === null) {
-			throw new PermissionDeniedException();
+		if (!isset($this->cache[$objectType])) {
+			return false;
 		}
 		
 		// validates against object type's class
-		if ($objectType->classname !== null) {
-			$className = $objectType->classname;
+		if ($this->cache[$objectType]->classname !== null) {
+			$className = $this->cache[$objectType]->classname;
 			if (!ClassUtil::isInstanceOf($className, 'wcf\system\poll\IPollHandler')) {
 				throw new SystemException("Class '".$className."' does not implement the interface 'wcf\system\poll\IPollHandler'");
 			}
 			else if (!ClassUtil::isInstanceOf($className, 'wcf\system\SingletonFactory')) {
 				throw new SystemException("Class '".$className."' does not extend the class 'wcf\system\SingletonFactory'");
 			}
-			
+				
 			$object = call_user_func(array($className, 'getInstance'));
-			
-			try {
-				$object->validate($poll);
-			}
-			catch (\Exception $e) {
-				throw new PermissionDeniedException();
-			}
+			return $object;
 		}
+		
+		return null;
 	}
 }
