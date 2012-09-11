@@ -43,13 +43,4 @@ class PollOption extends DatabaseObject {
 		
 		return 0;
 	}
-	
-	/**
-	 * Returns color id based upon the last digit of the show order.
-	 * 
-	 * @return	string
-	 */
-	public function getColorID() {
-		return substr($this->showOrder, -1);
-	}
 }
