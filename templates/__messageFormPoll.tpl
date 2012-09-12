@@ -71,7 +71,6 @@
 				{if !$pollID}
 					<dd>
 						<label><input type="checkbox" name="pollIsPublic" value="1"{if $pollIsPublic} checked="checked"{/if} /> {lang}wcf.poll.isPublic{/lang}</label>
-						<small>{lang}wcf.poll.isPublic.description{/lang}</small>
 					</dd>
 				{/if}
 				<dd>

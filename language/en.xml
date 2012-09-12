@@ -15,6 +15,7 @@
 		<item name="wcf.poll.question"><![CDATA[Question]]></item>
 		<item name="wcf.poll.restrictedResult"><![CDATA[Result is only visible for participants]]></item>
 		<item name="wcf.poll.resultsRequireVote"><![CDATA[Restrict results for participants only]]></item>
+		<item name="wcf.poll.resultsRequireVote"><![CDATA[Results are invisible unless the poll ended or the user voted.]]></item>
 		<item name="wcf.poll.sortByVotes"><![CDATA[Sort result by votes]]></item>
 		<item name="wcf.poll.totalVotes"><![CDATA[A total of {#$poll->votes} vote{if $poll->votes != 1}s{/if}]]></item>
 	</category>
