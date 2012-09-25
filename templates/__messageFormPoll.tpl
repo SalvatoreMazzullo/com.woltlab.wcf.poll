@@ -4,8 +4,8 @@
 		//<![CDATA[
 		$(function() {
 			WCF.Icon.addObject({
-				'wcf.icon.add': '{icon size='S'}add{/icon}',
-				'wcf.icon.delete': '{icon size='S'}delete{/icon}'
+				'wcf.icon.add': '{icon}add{/icon}',
+				'wcf.icon.delete': '{icon}delete{/icon}'
 			})
 			
 			WCF.Language.addObject({
