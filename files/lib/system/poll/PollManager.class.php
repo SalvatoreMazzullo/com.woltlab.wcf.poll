@@ -311,10 +311,10 @@ class PollManager extends SingletonFactory {
 		if ($this->cache[$objectType]->classname !== null) {
 			$className = $this->cache[$objectType]->classname;
 			if (!ClassUtil::isInstanceOf($className, 'wcf\system\poll\IPollHandler')) {
-				throw new SystemException("Class '".$className."' does not implement the interface 'wcf\system\poll\IPollHandler'");
+				throw new SystemException("'".$className."' does not implement 'wcf\system\poll\IPollHandler'");
 			}
 			else if (!ClassUtil::isInstanceOf($className, 'wcf\system\SingletonFactory')) {
-				throw new SystemException("Class '".$className."' does not extend the class 'wcf\system\SingletonFactory'");
+				throw new SystemException("'".$className."' does not extend 'wcf\system\SingletonFactory'");
 			}
 				
 			$object = call_user_func(array($className, 'getInstance'));
