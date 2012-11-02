@@ -3,11 +3,6 @@
 	<script type="text/javascript">
 		//<![CDATA[
 		$(function() {
-			WCF.Icon.addObject({
-				'wcf.icon.add': '{icon}add{/icon}',
-				'wcf.icon.delete': '{icon}delete{/icon}'
-			})
-			
 			WCF.Language.addObject({
 				'wcf.poll.addOption': '{lang}wcf.poll.addOption{/lang}',
 				'wcf.poll.removeOption': '{lang}wcf.poll.removeOption{/lang}'

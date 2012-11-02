@@ -10,7 +10,7 @@ use wcf\data\poll\Poll;
  * @license	GNU Lesser General Public License <http://opensource.org/licenses/lgpl-license.php>
  * @package	com.woltlab.wcf.poll
  * @subpackage	system.poll
- * @category 	Community Framework
+ * @category	Community Framework
  */
 interface IPollHandler {
 	/**

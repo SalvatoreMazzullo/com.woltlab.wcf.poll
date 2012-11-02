@@ -10,7 +10,7 @@ use wcf\data\DatabaseObjectList;
  * @license	GNU Lesser General Public License <http://opensource.org/licenses/lgpl-license.php>
  * @package	com.woltlab.wcf.poll
  * @subpackage	data.poll.option
- * @category 	Community Framework
+ * @category	Community Framework
  */
 class PollOptionList extends DatabaseObjectList {
 	/**
