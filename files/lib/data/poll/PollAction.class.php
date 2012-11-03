@@ -21,7 +21,7 @@ use wcf\system\WCF;
  */
 class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserListAction {
 	/**
-	 * @see wcf\data\AbstractDatabaseObjectAction::$className
+	 * @see	wcf\data\AbstractDatabaseObjectAction::$className
 	 */
 	protected $className = 'wcf\data\poll\PollEditor';
 	
