@@ -4,14 +4,14 @@
 		<categories>
 			<category name="message.general.poll">
 				<parent>message.general</parent>
-				<option>module_poll</option>
+				<options>module_poll</options>
 			</category>
 		</categories>
 		
 		<options>
 			<!-- module -->
 			<option name="module_poll">
-				<categoryname>module.content</categoryname>
+				<categoryname>module.community</categoryname>
 				<optiontype>boolean</optiontype>
 				<defaultvalue>1</defaultvalue>
 			</option>
