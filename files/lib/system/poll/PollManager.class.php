@@ -3,6 +3,7 @@ namespace wcf\system\poll;
 use wcf\data\object\type\ObjectTypeCache;
 use wcf\data\poll\Poll;
 use wcf\data\poll\PollAction;
+use wcf\system\database\util\PreparedStatementConditionBuilder;
 use wcf\system\exception\PermissionDeniedException;
 use wcf\system\exception\SystemException;
 use wcf\system\exception\UserInputException;
@@ -80,6 +81,21 @@ class PollManager extends SingletonFactory {
 		foreach ($objectTypes as $objectType) {
 			$this->cache[$objectType->objectType] = $objectType;
 		}
+	}
+	
+	/**
+	 * Removes a list of polls by id.
+	 * 
+	 * @param	array<integer>		$pollIDs
+	 */
+	public function removePolls(array $pollIDs) {
+		$conditions = new PreparedStatementConditionBuilder();
+		$conditions->add("pollID IN (?)", array($pollIDs));
+		
+		$sql = "DELETE FROM	wcf".WCF_N."_poll
+			".$conditions;
+		$statement = WCF::getDB()->prepareStatement($sql);
+		$statement->execute($conditions->getParameters());
 	}
 	
 	/**
