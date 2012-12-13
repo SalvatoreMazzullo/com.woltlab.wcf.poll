@@ -6,7 +6,7 @@
 			<environment>user</environment>
 			<templatename>messageFormTabs</templatename>
 			<eventname>tabMenuItems</eventname>
-			<templatecode><![CDATA[{if $__showPoll|isset && $__showPoll}<li><a href="#poll" title="{lang}wcf.poll.management{/lang}">{lang}wcf.poll.management{/lang}</a></li>{/if}]]></templatecode>
+			<templatecode><![CDATA[{if $__showPoll|isset && $__showPoll}<li><a href="{@$__wcf->getAnchor('poll')}" title="{lang}wcf.poll.management{/lang}">{lang}wcf.poll.management{/lang}</a></li>{/if}]]></templatecode>
 		</templatelistener>
 		
 		<templatelistener name="messageFormPoll">
