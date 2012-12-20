@@ -104,6 +104,7 @@ class PollManager extends SingletonFactory {
 	 * @param	string		$objectType
 	 * @param	integer		$objectID
 	 * @param	integer		$pollID
+	 * @return	boolean
 	 */
 	public function setObject($objectType, $objectID, $pollID = 0) {
 		if (!isset($this->cache[$objectType])) {
@@ -114,18 +115,49 @@ class PollManager extends SingletonFactory {
 		$this->objectType = $objectType;
 		$this->pollID = $pollID;
 		
+		// load poll
 		if ($this->pollID) {
 			$this->poll = new Poll($this->pollID);
 			if (!$this->poll->pollID) {
-				throw new SystemException("Poll id '".$this->pollID."' is invalid");
+				$this->poll = null;
+				$this->pollID = 0;
+				
+				return false;
+			}
+			
+			// populate poll data
+			$this->pollData = array(
+				'endTime' => $this->poll->endTime,
+				'isChangeable' => $this->poll->isChangeable,
+				'isPublic' => $this->poll->isPublic,
+				'maxVotes' => $this->poll->maxVotes,
+				'question' => $this->poll->question,
+				'resultsRequireVote' => $this->poll->resultsRequireVote,
+				'sortByVotes' => $this->poll->sortByVotes
+			);
+			
+			// load poll options
+			$sql = "SELECT		optionID, optionValue
+				FROM		wcf".WCF_N."_poll_option
+				WHERE		pollID = ?
+				ORDER BY	showOrder ASC";
+			$statement = WCF::getDB()->prepareStatement($sql);
+			$statement->execute(array($this->poll->pollID));
+			while ($row = $statement->fetchArray()) {
+				$this->pollOptions[] = $row;
 			}
 		}
+		
+		return true;
 	}
 	
 	/**
 	 * Reads form parameters for polls.
 	 */
 	public function readFormParameters() {
+		// reset poll data and options prior to reading form input
+		$this->pollData = $this->pollOptions = array();
+		
 		// poll data
 		if (isset($_POST['pollEndTime'])) $this->pollData['endTime'] = intval($_POST['pollEndTime']);
 		if (isset($_POST['pollMaxVotes'])) $this->pollData['maxVotes'] = max(intval($_POST['pollMaxVotes']), 1); // force a minimum of 1

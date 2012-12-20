@@ -66,11 +66,11 @@ class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserLis
 		parent::update();
 		
 		// read current poll
-		$poll = current($this->objects);
+		$pollEditor = reset($this->objects);
 		
 		// get current options
 		$optionList = new PollOptionList();
-		$optionList->getConditionBuilder()->add("poll_option.pollID = ?", array($poll->pollID));
+		$optionList->getConditionBuilder()->add("poll_option.pollID = ?", array($pollEditor->pollID));
 		$optionList->sqlLimit = 0;
 		$optionList->sqlOrderBy = "poll_option.showOrder ASC";
 		$optionList->readObjects();
@@ -120,8 +120,8 @@ class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserLis
 			// check if existing options should be updated
 			if (!empty($updateOptions)) {
 				$sql = "UPDATE	wcf".WCF_N."_poll_option
-					SET	optionValue = ?
-						AND showOrder = ?
+					SET	optionValue = ?,
+						showOrder = ?
 					WHERE	optionID = ?";
 				$statement = WCF::getDB()->prepareStatement($sql);
 				foreach ($updateOptions as $optionID => $option) {
@@ -144,7 +144,6 @@ class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserLis
 			}
 			
 			// force recalculation of poll stats
-			$pollEditor = new PollEditor($poll);
 			$pollEditor->calculateVotes();
 			
 			WCF::getDB()->commitTransaction();
