@@ -110,7 +110,7 @@ class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserLis
 				$statement = WCF::getDB()->prepareStatement($sql);
 				foreach ($newOptions as $option) {
 					$statement->execute(array(
-						$poll->pollID,
+						$pollEditor->pollID,
 						$option['optionValue'],
 						$option['showOrder']
 					));
