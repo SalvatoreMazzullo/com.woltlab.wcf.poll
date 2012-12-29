@@ -1,12 +1,12 @@
 <ol class="pollResultList">
 	{foreach from=$poll->getOptions() item=option}
 		<li class="pollResultItem">
-			<span class="pollMeter" style="width: {if $option->getRelativeVotes($poll)}{@$option->getRelativeVotes($poll)}%{else}1px{/if}">&nbsp;</span>
+			<span class="pollMeter" style="width: {if $option->getRelativeVotes($poll)}{@$option->getRelativeVotes($poll)}%{else}0{/if}">&nbsp;</span>
 			<div class="caption">
-				<small class="optionName">
+				<span class="optionName">
 					{$option->optionValue} ({#$option->votes})</span>
 					<span class="relativeVotes">{@$option->getRelativeVotes($poll)}%</span>
-				</small>
+				</span>
 			</div>
 		</li>
 	{/foreach}
