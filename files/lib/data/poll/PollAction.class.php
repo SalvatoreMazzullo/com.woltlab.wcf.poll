@@ -1,7 +1,7 @@
 <?php
 namespace wcf\data\poll;
-use wcf\data\poll\PollEditor;
 use wcf\data\poll\option\PollOptionList;
+use wcf\data\poll\PollEditor;
 use wcf\data\AbstractDatabaseObjectAction;
 use wcf\data\IGroupedUserListAction;
 use wcf\system\exception\PermissionDeniedException;

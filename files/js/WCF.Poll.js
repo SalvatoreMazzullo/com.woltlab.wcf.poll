@@ -90,11 +90,34 @@ WCF.Poll.Management = Class.extend({
 		
 		// insert buttons
 		var $buttonContainer = $('<span class="sortableButtonContainer" />').appendTo($listItem);
-		$('<img src="' + WCF.Icon.get('wcf.icon.add') + '" alt="" title="' + WCF.Language.get('wcf.poll.addOption') + '" class="icon16 jsTooltip" />').click($.proxy(this._addOption, this)).appendTo($buttonContainer);
-		$('<img src="' + WCF.Icon.get('wcf.icon.delete') + '" alt="" title="' + WCF.Language.get('wcf.poll.removeOption') + '" class="icon16 jsTooltip" />').click($.proxy(this._removeOption, this)).appendTo($buttonContainer);
+		$('<img src="' + WCF.Icon.get('wcf.icon.add') + '" alt="" title="' + WCF.Language.get('wcf.poll.addOption') + '" class="icon16 jsTooltip jsAddOption" />').click($.proxy(this._addOption, this)).appendTo($buttonContainer);
+		$('<img src="' + WCF.Icon.get('wcf.icon.delete') + '" alt="" title="' + WCF.Language.get('wcf.poll.removeOption') + '" class="icon16 jsTooltip jsDeleteOption" />').click($.proxy(this._removeOption, this)).appendTo($buttonContainer);
 		
 		// insert input field
-		$('<input type="text" value="' + optionValue + '" />').css({ width: this._inputSize + "px" }).appendTo($listItem);
+		var $input = $('<input type="text" value="' + optionValue + '" />').css({ width: this._inputSize + "px" }).keydown($.proxy(this._keyDown, this)).appendTo($listItem);
+		
+		if (insertAfter !== null) {
+			$input.focus();
+		}
+	},
+	
+	/**
+	 * Handles key down events for option input field.
+	 * 
+	 * @param	object		event
+	 * @return	boolean
+	 */
+	_keyDown: function(event) {
+		// ignore every key except for [Enter]
+		if (event.which !== 13) {
+			return true;
+		}
+		
+		$(event.currentTarget).prev('.sortableButtonContainer').children('.jsAddOption').trigger('click');
+		
+		event.preventDefault();
+		event.stopPropagation();
+		return false;
 	},
 	
 	/**
