@@ -1,15 +1,15 @@
 <?php
 namespace wcf\data\poll;
-use wcf\data\poll\option\PollOptionList;
+use wcf\data\poll\option\PollOption;
 use wcf\data\DatabaseObject;
-use wcf\system\database\util\PreparedStatementConditionBuilder;
+use wcf\system\poll\PollManager;
 use wcf\system\WCF;
 
 /**
  * Represents a poll.
  * 
  * @author	Alexander Ebert
- * @copyright	2001-2012 WoltLab GmbH
+ * @copyright	2001-2013 WoltLab GmbH
  * @license	GNU Lesser General Public License <http://opensource.org/licenses/lgpl-license.php>
  * @package	com.woltlab.wcf.poll
  * @subpackage	data.poll
@@ -37,6 +37,21 @@ class Poll extends DatabaseObject {
 	 * @var	array<wcf\data\poll\option\PollOption>
 	 */
 	protected $options = array();
+	
+	/**
+	 * Adds an option to current poll.
+	 * 
+	 * @param	wcf\data\poll\option\PollOption		$option
+	 */
+	public function addOption(PollOption $option) {
+		if ($option->pollID == $this->pollID) {
+			$this->options[$option->optionID] = $option;
+			
+			if ($option->voted) {
+				$this->isParticipant = true;
+			}
+		}
+	}
 	
 	/**
 	 * Returns a list of poll options.
@@ -68,26 +83,13 @@ class Poll extends DatabaseObject {
 			return;
 		}
 		
-		$optionList = new PollOptionList();
-		$optionList->getConditionBuilder()->add("poll_option.pollID = ?", array($this->pollID));
-		$optionList->sqlLimit = 0;
-		$optionList->readObjects();
-		$this->options = $optionList->getObjects();
+		$optionList = PollManager::getInstance()->getPollOptions(array($this->pollID));
+		foreach ($optionList as $option) {
+			$this->options[$option->optionID] = $option;
 			
-		// read participation state
-		$conditions = new PreparedStatementConditionBuilder();
-		$conditions->add("optionID IN (?)", array(array_keys($this->options)));
-		$conditions->add("userID = ?", array(WCF::getUser()->userID));
-			
-		$sql = "SELECT	optionID
-			FROM	wcf".WCF_N."_poll_option_vote
-			".$conditions;
-		$statement = WCF::getDB()->prepareStatement($sql);
-		$statement->execute($conditions->getParameters());
-		while ($row = $statement->fetchArray()) {
-			$this->isParticipant = true;
-			
-			$this->options[$row['optionID']]->selected = true;
+			if ($option->voted) {
+				$this->isParticipant = true;
+			}
 		}
 	}
 	

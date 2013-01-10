@@ -28,6 +28,8 @@ CREATE TABLE wcf1_poll_option_vote (
 	pollID INT(10) NOT NULL,
 	optionID INT(10) NOT NULL,
 	userID INT(10) NOT NULL,
+	
+	KEY (optionID, userID),
 	UNIQUE KEY vote (pollID, optionID, userID)
 );
 

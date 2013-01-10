@@ -1,7 +1,9 @@
 <?php
 namespace wcf\system\poll;
 use wcf\data\object\type\ObjectTypeCache;
+use wcf\data\poll\option\PollOptionList;
 use wcf\data\poll\Poll;
+use wcf\data\poll\PollList;
 use wcf\data\poll\PollAction;
 use wcf\system\database\util\PreparedStatementConditionBuilder;
 use wcf\system\exception\PermissionDeniedException;
@@ -16,7 +18,7 @@ use wcf\util\StringUtil;
  * Provides methods to create and manage polls.
  * 
  * @author	Alexander Ebert
- * @copyright	2001-2012 WoltLab GmbH
+ * @copyright	2001-2013 WoltLab GmbH
  * @license	GNU Lesser General Public License <http://opensource.org/licenses/lgpl-license.php>
  * @package	com.woltlab.wcf.poll
  * @subpackage	system.poll
@@ -331,6 +333,60 @@ class PollManager extends SingletonFactory {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Returns a list of polls including options and vote state for current user.
+	 * 
+	 * @param	array<integer>		$pollIDs
+	 * @return	array<wcf\data\poll\Poll>
+	 */
+	public function getPolls(array $pollIDs) {
+		$pollList = new PollList();
+		$pollList->getConditionBuilder()->add("poll.pollID IN (?)", array($pollIDs));
+		$pollList->sqlLimit = 0;
+		$pollList->readObjects();
+		$polls = $pollList->getObjects();
+		
+		// invalid poll ids
+		if (empty($polls)) {
+			return array();
+		}
+		
+		// fetch options for every poll
+		$optionList = $this->getPollOptions($pollIDs);
+		
+		// assign options to poll
+		foreach ($optionList as $option) {
+			$polls[$option->pollID]->addOption($option);
+		}
+		
+		return $polls;
+	}
+	
+	/**
+	 * Returns a list of poll options with vote state for current user.
+	 * 
+	 * @param	array<integer>		$pollIDs
+	 * @return	wcf\data\poll\option\PollOptionList
+	 */
+	public function getPollOptions(array $pollIDs) {
+		$optionList = new PollOptionList();
+		$optionList->getConditionBuilder()->add("poll_option.pollID IN (?)", array($pollIDs));
+		$optionList->sqlLimit = 0;
+		
+		// check for user votes
+		if (WCF::getUser()->userID) {
+			$optionList->sqlSelects = "CASE WHEN poll_option_vote.optionID IS NULL THEN '0' ELSE '1' END AS voted";
+			$optionList->sqlJoins = "LEFT JOIN wcf".WCF_N."_poll_option_vote poll_option_vote ON (poll_option_vote.optionID = poll_option.optionID AND poll_option_vote.userID = ".WCF::getUser()->userID.")";
+		}
+		else {
+			$optionList->sqlSelects = "'0' AS voted";
+		}
+		
+		$optionList->readObjects();
+		
+		return $optionList;
 	}
 	
 	/**
