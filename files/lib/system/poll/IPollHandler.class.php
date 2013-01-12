@@ -6,7 +6,7 @@ use wcf\data\poll\Poll;
  * Provides methods to create and manage polls.
  *
  * @author	Alexander Ebert
- * @copyright	2001-2012 WoltLab GmbH
+ * @copyright	2001-2013 WoltLab GmbH
  * @license	GNU Lesser General Public License <http://opensource.org/licenses/lgpl-license.php>
  * @package	com.woltlab.wcf.poll
  * @subpackage	system.poll
@@ -28,9 +28,9 @@ interface IPollHandler {
 	public function canVote();
 	
 	/**
-	 * Validates if given poll object is accessible for current user.
+	 * Returns related object for given poll object.
 	 * 
 	 * @param	wcf\data\poll\Poll	$poll
 	 */
-	public function validate(Poll $poll);
+	public function getRelatedObject(Poll $poll);
 }

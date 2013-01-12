@@ -1,6 +1,5 @@
 <?php
 namespace wcf\action;
-use wcf\data\poll\Poll;
 use wcf\system\exception\IllegalLinkException;
 use wcf\system\exception\PermissionDeniedException;
 use wcf\system\exception\SystemException;
@@ -46,6 +45,12 @@ class PollAction extends AJAXProxyAction {
 	public $pollID = 0;
 	
 	/**
+	 * related poll object
+	 * @var	wcf\data\IPollObject
+	 */
+	public $relatedObject = null;
+	
+	/**
 	 * @see	wcf\action\IAction::readParameters()
 	 */
 	public function readParameters() {
@@ -58,12 +63,42 @@ class PollAction extends AJAXProxyAction {
 		if (isset($_POST['actionName'])) $this->actionName = StringUtil::trim($_POST['actionName']);
 		if (isset($_POST['pollID'])) $this->pollID = intval($_POST['pollID']);
 		
-		$this->poll = new Poll($this->pollID);
-		if (!$this->poll->pollID) {
+		$polls = PollManager::getInstance()->getPolls(array($this->pollID));
+		if (!isset($polls[$this->pollID])) {
 			throw new UserInputException('pollID');
 		}
+		$this->poll = $polls[$this->pollID];
 		
-		PollManager::getInstance()->validatePermissions($this->poll);
+		// load related object
+		$this->relatedObject = PollManager::getInstance()->getRelatedObject($this->poll);
+		if ($this->relatedObject === null) {
+			if ($this->poll->objectID) {
+				throw new SystemException("Missing related object for poll id '".$this->poll->pollID."'");
+			}
+		}
+		else {
+			$this->poll->setRelatedObject($this->relatedObject);
+		}
+		
+		// validate action
+		switch ($this->actionName) {
+			case 'getResult':
+				if (!$this->poll->canSeeResult()) {
+					throw new PermissionDeniedException();
+				}
+			break;
+			
+			case 'getVote':
+			case 'vote':
+				if (!$this->poll->canVote()) {
+					throw new PermissionDeniedException();
+				}
+			break;
+			
+			default:
+				throw new SystemException("Unknown action '".$this->actionName."'");
+			break;
+		}
 		
 		if (isset($_POST['optionIDs']) && is_array($_POST['optionIDs'])) {
 			$this->optionIDs = ArrayUtil::toIntegerArray($_POST['optionIDs']);
@@ -71,15 +106,9 @@ class PollAction extends AJAXProxyAction {
 				throw new PermissionDeniedException();
 			}
 			
-			// validate option ids
-			$sql = "SELECT	optionID
-				FROM	wcf".WCF_N."_poll_option
-				WHERE	pollID = ?";
-			$statement = WCF::getDB()->prepareStatement($sql);
-			$statement->execute(array($this->poll->pollID));
 			$optionIDs = array();
-			while ($row = $statement->fetchArray()) {
-				$optionIDs[] = $row['optionID'];
+			foreach ($this->poll->getOptions() as $option) {
+				$optionIDs[] = $option->optionID;
 			}
 			
 			foreach ($this->optionIDs as $optionID) {
@@ -112,10 +141,6 @@ class PollAction extends AJAXProxyAction {
 			
 			case 'vote':
 				$this->vote($returnValues);
-			break;
-			
-			default:
-				throw new SystemException("Unknown action '".$this->actionName."'");
 			break;
 		}
 		
@@ -159,7 +184,11 @@ class PollAction extends AJAXProxyAction {
 		$pollAction->executeAction();
 		
 		// update poll object
-		$this->poll = new Poll($this->poll->pollID);
+		$polls = PollManager::getInstance()->getPolls(array($this->pollID));
+		$this->poll = $polls[$this->pollID];
+		if ($this->relatedObject !== null) {
+			$this->poll->setRelatedObject($this->relatedObject);
+		}
 		
 		// render result template
 		$this->getResult($returnValues);

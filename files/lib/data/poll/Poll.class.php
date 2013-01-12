@@ -2,6 +2,7 @@
 namespace wcf\data\poll;
 use wcf\data\poll\option\PollOption;
 use wcf\data\DatabaseObject;
+use wcf\data\IPollObject;
 use wcf\system\poll\PollManager;
 use wcf\system\WCF;
 
@@ -37,6 +38,12 @@ class Poll extends DatabaseObject {
 	 * @var	array<wcf\data\poll\option\PollOption>
 	 */
 	protected $options = array();
+	
+	/**
+	 * related object
+	 * @var	wcf\data\IPollObject
+	 */
+	protected $relatedObject = null;
 	
 	/**
 	 * Adds an option to current poll.
@@ -123,6 +130,18 @@ class Poll extends DatabaseObject {
 			return false;
 		}
 		
+		if ($this->objectID) {
+			// related object required but not given, deny vote ability
+			if ($this->relatedObject === null) {
+				return false;
+			}
+			
+			// validate permissions
+			if (!$this->relatedObject->canVote()) {
+				return false;
+			}
+		}
+		
 		return true;
 	}
 	
@@ -137,5 +156,23 @@ class Poll extends DatabaseObject {
 		}
 		
 		return false;
+	}
+	
+	/**
+	 * Sets related object for this poll.
+	 * 
+	 * @param	wcf\data\IPollObject		$object
+	 */
+	public function setRelatedObject(IPollObject $object) {
+		$this->relatedObject = $object;
+	}
+	
+	/**
+	 * Returns related object.
+	 * 
+	 * @return	wcf\data\IPollObject
+	 */
+	public function getRelatedObject() {
+		return $this->relatedObject;
 	}
 }

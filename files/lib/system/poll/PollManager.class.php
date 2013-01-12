@@ -301,27 +301,6 @@ class PollManager extends SingletonFactory {
 	}
 	
 	/**
-	 * Validates permissions for given poll object.
-	 * 
-	 * @param	wcf\data\poll\Poll	$poll
-	 */
-	public function validatePermissions(Poll $poll) {
-		$handler = $this->getHandler($poll->objectTypeID);
-		if ($handler === false) {
-			// accessing an unknown poll, e.g. from a different environment
-			throw new PermissionDeniedException();
-		}
-		else if ($handler !== null) {
-			try {
-				$handler->validate($poll);
-			}
-			catch (\Exception $e) {
-				throw new PermissionDeniedException();
-			}
-		}
-	}
-	
-	/**
 	 * Returns true, if current user can start a public poll.
 	 * 
 	 * @return	boolean
@@ -390,6 +369,20 @@ class PollManager extends SingletonFactory {
 	}
 	
 	/**
+	 * Returns related object for given poll object.
+	 * 
+	 * @param	wcf\data\poll\Poll	$poll
+	 * @return	wcf\data\IPollObject
+	 */
+	public function getRelatedObject(Poll $poll) {
+		if ($poll->objectID) {
+			return $this->getHandler($poll->objectTypeID)->getRelatedObject($poll);
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Returns the handler object for given object type. Returns false if object type (id)
 	 * is not found, or null if no handler is assigned.
 	 * 
@@ -408,23 +401,23 @@ class PollManager extends SingletonFactory {
 		}
 		
 		if (!isset($this->cache[$objectType])) {
-			return false;
+			throw new SystemException("Object type '".$objectType."' (id ".$objectTypeID.") is not valid for object type definition 'com.woltlab.wcf.poll'");
+		}
+		
+		if ($this->cache[$objectType]->className === null) {
+			throw new SystemException("Object type '".$objectType."' does not provide a processor class name");
 		}
 		
 		// validates against object type's class
-		if ($this->cache[$objectType]->classname !== null) {
-			$className = $this->cache[$objectType]->classname;
-			if (!ClassUtil::isInstanceOf($className, 'wcf\system\poll\IPollHandler')) {
-				throw new SystemException("'".$className."' does not implement 'wcf\system\poll\IPollHandler'");
-			}
-			else if (!ClassUtil::isInstanceOf($className, 'wcf\system\SingletonFactory')) {
-				throw new SystemException("'".$className."' does not extend 'wcf\system\SingletonFactory'");
-			}
-				
-			$object = call_user_func(array($className, 'getInstance'));
-			return $object;
+		$className = $this->cache[$objectType]->className;
+		if (!ClassUtil::isInstanceOf($className, 'wcf\system\poll\IPollHandler')) {
+			throw new SystemException("'".$className."' does not implement 'wcf\system\poll\IPollHandler'");
 		}
-		
-		return null;
+		else if (!ClassUtil::isInstanceOf($className, 'wcf\system\SingletonFactory')) {
+			throw new SystemException("'".$className."' does not extend 'wcf\system\SingletonFactory'");
+		}
+			
+		$object = call_user_func(array($className, 'getInstance'));
+		return $object;
 	}
 }
