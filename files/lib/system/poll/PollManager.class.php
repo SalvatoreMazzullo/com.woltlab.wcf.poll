@@ -323,7 +323,6 @@ class PollManager extends SingletonFactory {
 	public function getPolls(array $pollIDs) {
 		$pollList = new PollList();
 		$pollList->getConditionBuilder()->add("poll.pollID IN (?)", array($pollIDs));
-		$pollList->sqlLimit = 0;
 		$pollList->readObjects();
 		$polls = $pollList->getObjects();
 		
@@ -352,7 +351,6 @@ class PollManager extends SingletonFactory {
 	public function getPollOptions(array $pollIDs) {
 		$optionList = new PollOptionList();
 		$optionList->getConditionBuilder()->add("poll_option.pollID IN (?)", array($pollIDs));
-		$optionList->sqlLimit = 0;
 		
 		// check for user votes
 		if (WCF::getUser()->userID) {

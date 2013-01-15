@@ -71,7 +71,6 @@ class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserLis
 		// get current options
 		$optionList = new PollOptionList();
 		$optionList->getConditionBuilder()->add("poll_option.pollID = ?", array($pollEditor->pollID));
-		$optionList->sqlLimit = 0;
 		$optionList->sqlOrderBy = "poll_option.showOrder ASC";
 		$optionList->readObjects();
 		$options = $optionList->getObjects();
