@@ -2,7 +2,7 @@
  * Namespace for poll-related classes.
  * 
  * @author	Alexander Ebert
- * @copyright	2001-2012 WoltLab GmbH
+ * @copyright	2001-2013 WoltLab GmbH
  * @license	GNU Lesser General Public License <http://opensource.org/licenses/lgpl-license.php>
  */
 WCF.Poll = { };
@@ -218,6 +218,12 @@ WCF.Poll.Manager = Class.extend({
 	_canVote: { },
 	
 	/**
+	 * list of input elements per poll
+	 * @var	object
+	 */
+	_inputElements: { },
+	
+	/**
 	 * list of participant lists
 	 * @var	object
 	 */
@@ -249,6 +255,7 @@ WCF.Poll.Manager = Class.extend({
 		
 		this._cache = { };
 		this._canViewResult = { };
+		this._inputElements = { };
 		this._participants = { };
 		this._polls = { };
 		this._proxy = new WCF.Action.Proxy({
@@ -292,8 +299,9 @@ WCF.Poll.Manager = Class.extend({
 	 * @param	integer		pollID
 	 */
 	_bindListeners: function(pollID) {
-		this._polls[pollID].find('.jsPollResult').data('pollID', pollID).click($.proxy(this._showResult, this));
-		this._polls[pollID].find('.jsPollVote').data('pollID', pollID).click($.proxy(this._showVote, this));
+		this._polls[pollID].find('.jsButtonPollShowResult').data('pollID', pollID).click($.proxy(this._showResult, this));
+		this._polls[pollID].find('.jsButtonPollShowVote').data('pollID', pollID).click($.proxy(this._showVote, this));
+		this._polls[pollID].find('.jsButtonPollVote').data('pollID', pollID).click($.proxy(this._vote, this));
 	},
 	
 	/**
@@ -438,7 +446,52 @@ WCF.Poll.Manager = Class.extend({
 	 * @param	integer		pollID
 	 */
 	_prepareVote: function(pollID) {
-		this._polls[pollID].find('.pollInnerContainer .jsSubmitVote').click($.proxy(this._vote, this));
+		this._polls[pollID].find('.jsButtonPollVote').disable();
+		
+		var $voteContainer = this._polls[pollID].find('.pollInnerContainer > .jsPollVote');
+		var self = this;
+		this._inputElements[pollID] = $voteContainer.find('input').change(function() { self._handleVoteButton(pollID); });
+		this._handleVoteButton(pollID);
+		
+		var $maxVotes = $voteContainer.data('maxVotes');
+		if (this._inputElements[pollID].filter('[type=checkbox]').length) {
+			this._inputElements[pollID].change(function() { self._enforceMaxVotes(pollID, $maxVotes); });
+			this._enforceMaxVotes(pollID, $maxVotes);
+		}
+	},
+	
+	/**
+	 * Enforces max votes for input fields.
+	 * 
+	 * @param	integer		pollID
+	 * @param	integer		maxVotes
+	 */
+	_enforceMaxVotes: function(pollID, maxVotes) {
+		var $elements = this._inputElements[pollID];
+		
+		if ($elements.filter(':checked').length == maxVotes) {
+			$elements.filter(':not(:checked)').disable();
+		}
+		else {
+			$elements.enable();
+		}
+	},
+	
+	/**
+	 * Enables or disable vote button.
+	 * 
+	 * @param	integer		pollID
+	 */
+	_handleVoteButton: function(pollID) {
+		var $elements = this._inputElements[pollID];
+		var $voteButton = this._polls[pollID].find('.jsButtonPollVote');
+		
+		if ($elements.filter(':checked').length) {
+			$voteButton.enable();
+		}
+		else {
+			$voteButton.disable();
+		}
 	},
 	
 	/**
@@ -447,18 +500,25 @@ WCF.Poll.Manager = Class.extend({
 	 * @param	integer		pollID
 	 */
 	_toggleButtons: function(pollID) {
-		this._polls[pollID].find('.jsPollResult').hide();
-		this._polls[pollID].find('.jsPollVote').hide();
+		var $formSubmit = this._polls[pollID].children('.formSubmit');
+		$formSubmit.find('.jsButtonPollShowResult, .jsButtonPollShowVote, .jsButtonPollVote').hide();
 		
+		var $hideFormSubmit = true;
 		if (this._polls[pollID].data('inVote')) {
+			$hideFormSubmit = false;
+			$formSubmit.find('.jsButtonPollVote').show();
+			
 			if (this._canViewResult[pollID]) {
-				this._polls[pollID].find('.jsPollResult').show();
+				$formSubmit.find('.jsButtonPollShowResult').show();
 			}
 		}
-		else {
-			if (this._canVote[pollID]) {
-				this._polls[pollID].find('.jsPollVote').show();
-			}
+		else if (this._canVote[pollID]) {
+			$hideFormSubmit = false;
+			$formSubmit.find('.jsButtonPollShowVote').show();
+		}
+		
+		if ($hideFormSubmit) {
+			$formSubmit.hide();
 		}
 	},
 	
@@ -477,7 +537,7 @@ WCF.Poll.Manager = Class.extend({
 		
 		// collect values
 		var $optionIDs = [ ];
-		this._polls[$pollID].find('.pollInnerContainer input').each(function(index, input) {
+		this._inputElements[$pollID].each(function(index, input) {
 			var $input = $(input);
 			if ($input.is(':checked')) {
 				$optionIDs.push($input.data('optionID'));
