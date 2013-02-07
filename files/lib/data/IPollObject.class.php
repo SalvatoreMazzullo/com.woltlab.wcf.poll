@@ -13,7 +13,7 @@ namespace wcf\data;
  */
 interface IPollObject {
 	/**
-	 * Returns true, if user can vote in polls.
+	 * Returns true if user can vote in polls.
 	 * 
 	 * @return	boolean
 	 */

@@ -301,7 +301,7 @@ class PollManager extends SingletonFactory {
 	}
 	
 	/**
-	 * Returns true, if current user can start a public poll.
+	 * Returns true if current user can start a public poll.
 	 * 
 	 * @return	boolean
 	 */

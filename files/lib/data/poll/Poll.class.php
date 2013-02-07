@@ -72,7 +72,7 @@ class Poll extends DatabaseObject {
 	}
 	
 	/**
-	 * Returns true, if current user is a participant.
+	 * Returns true if current user is a participant.
 	 * 
 	 * @return	boolean
 	 */
@@ -101,7 +101,7 @@ class Poll extends DatabaseObject {
 	}
 	
 	/**
-	 * Returns true, if poll is already finished.
+	 * Returns true if poll is already finished.
 	 * 
 	 * @return	boolean
 	 */
@@ -114,7 +114,7 @@ class Poll extends DatabaseObject {
 	}
 	
 	/**
-	 * Returns true, if current user can vote.
+	 * Returns true if current user can vote.
 	 * 
 	 * @return	boolean
 	 */
@@ -146,7 +146,7 @@ class Poll extends DatabaseObject {
 	}
 	
 	/**
-	 * Returns true, if current user can see the result.
+	 * Returns true if current user can see the result.
 	 * 
 	 * @return	boolean
 	 */
