@@ -6,7 +6,6 @@ use wcf\data\poll\Poll;
 use wcf\data\poll\PollAction;
 use wcf\data\poll\PollList;
 use wcf\system\database\util\PreparedStatementConditionBuilder;
-use wcf\system\exception\PermissionDeniedException;
 use wcf\system\exception\SystemException;
 use wcf\system\exception\UserInputException;
 use wcf\system\SingletonFactory;
