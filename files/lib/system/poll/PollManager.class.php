@@ -413,7 +413,7 @@ class PollManager extends SingletonFactory {
 		else if (!ClassUtil::isInstanceOf($className, 'wcf\system\SingletonFactory')) {
 			throw new SystemException("'".$className."' does not extend 'wcf\system\SingletonFactory'");
 		}
-			
+		
 		$object = call_user_func(array($className, 'getInstance'));
 		return $object;
 	}
