@@ -22,6 +22,8 @@
 				<categoryname>message.general.poll</categoryname>
 				<optiontype>integer</optiontype>
 				<defaultvalue>20</defaultvalue>
+				<minvalue>2</minvalue>
+				<maxvalue>100</maxvalue>
 			</option>
 			<!-- /message.general.poll -->
 		</options>
