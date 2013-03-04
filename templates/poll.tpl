@@ -32,7 +32,7 @@
 	</fieldset>
 	
 	{if $__wcf->getUser()->userID}
-		<div class="formSubmit">
+		<div class="formSubmit jsOnly">
 			<button class="small jsButtonPollVote">{lang}wcf.poll.button.vote{/lang}</button>
 			<button class="small jsButtonPollShowVote">{lang}wcf.poll.button.showVote{/lang}</button>
 			<button class="small jsButtonPollShowResult">{lang}wcf.poll.button.showResult{/lang}</button>

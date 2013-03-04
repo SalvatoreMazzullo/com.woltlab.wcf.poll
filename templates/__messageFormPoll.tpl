@@ -13,7 +13,7 @@
 		//]]>
 	</script>
 	
-	<div id="poll" class="tabMenuContent container containerPadding">
+	<div id="poll" class="jsOnly tabMenuContent container containerPadding">
 		<fieldset>
 			<dl{if $errorField == 'pollOptions'} class="formError"{/if}>
 				<dt>
