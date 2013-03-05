@@ -206,7 +206,13 @@ WCF.Poll.Manager = Class.extend({
 	_cache: { },
 	
 	/**
-	 * list of permissions
+	 * list of permissions to view participants
+	 * @var	object
+	 */
+	_canViewParticipants: { },
+	
+	/**
+	 * list of permissions to view result
 	 * @var	object
 	 */
 	_canViewResult: { },
@@ -254,6 +260,7 @@ WCF.Poll.Manager = Class.extend({
 		}
 		
 		this._cache = { };
+		this._canViewParticipants = { };
 		this._canViewResult = { };
 		this._inputElements = { };
 		this._participants = { };
@@ -276,6 +283,7 @@ WCF.Poll.Manager = Class.extend({
 				};
 				self._polls[$pollID] = $poll;
 				
+				self._canViewParticipants[$pollID] = ($poll.data('canViewParticipants')) ? true : false;
 				self._canViewResult[$pollID] = ($poll.data('canViewResult')) ? true : false;
 				self._canVote[$pollID] = ($poll.data('canVote')) ? true : false;
 				
@@ -283,9 +291,6 @@ WCF.Poll.Manager = Class.extend({
 				
 				if ($poll.data('inVote')) {
 					self._prepareVote($pollID);
-				}
-				else {
-					$poll.find('.jsPollShowParticipants').data('pollID', $pollID).click($.proxy(self._showParticipants, self));
 				}
 				
 				self._toggleButtons($pollID);
@@ -299,6 +304,7 @@ WCF.Poll.Manager = Class.extend({
 	 * @param	integer		pollID
 	 */
 	_bindListeners: function(pollID) {
+		this._polls[pollID].find('.jsButtonPollShowParticipants').data('pollID', pollID).click($.proxy(this._showParticipants, this));
 		this._polls[pollID].find('.jsButtonPollShowResult').data('pollID', pollID).click($.proxy(this._showResult, this));
 		this._polls[pollID].find('.jsButtonPollShowVote').data('pollID', pollID).click($.proxy(this._showVote, this));
 		this._polls[pollID].find('.jsButtonPollVote').data('pollID', pollID).click($.proxy(this._vote, this));
@@ -339,9 +345,6 @@ WCF.Poll.Manager = Class.extend({
 			
 			// toggle buttons
 			this._toggleButtons($pollID);
-			
-			// bind event listener
-			this._polls[$pollID].find('.jsPollShowParticipants').data('pollID', $pollID).click($.proxy(this._showParticipants, this));
 		}
 	},
 	
@@ -501,7 +504,7 @@ WCF.Poll.Manager = Class.extend({
 	 */
 	_toggleButtons: function(pollID) {
 		var $formSubmit = this._polls[pollID].children('.formSubmit');
-		$formSubmit.find('.jsButtonPollShowResult, .jsButtonPollShowVote, .jsButtonPollVote').hide();
+		$formSubmit.find('.jsButtonPollShowParticipants, .jsButtonPollShowResult, .jsButtonPollShowVote, .jsButtonPollVote').hide();
 		
 		var $hideFormSubmit = true;
 		if (this._polls[pollID].data('inVote')) {
@@ -512,9 +515,16 @@ WCF.Poll.Manager = Class.extend({
 				$formSubmit.find('.jsButtonPollShowResult').show();
 			}
 		}
-		else if (this._canVote[pollID]) {
-			$hideFormSubmit = false;
-			$formSubmit.find('.jsButtonPollShowVote').show();
+		else {
+			if (this._canVote[pollID]) {
+				$hideFormSubmit = false;
+				$formSubmit.find('.jsButtonPollShowVote').show();
+			}
+			
+			if (this._canViewParticipants[pollID]) {
+				$hideFormSubmit = false;
+				$formSubmit.find('.jsButtonPollShowParticipants').show();
+			}
 		}
 		
 		if ($hideFormSubmit) {

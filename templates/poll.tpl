@@ -10,7 +10,7 @@
 	</script>
 {/if}
 
-<div class="container containerPadding pollContainer" data-poll-id="{@$poll->pollID}" data-can-vote="{if $poll->canVote()}1{else}0{/if}" data-can-view-result="{if $poll->canSeeResult()}1{else}0{/if}" data-in-vote="{if $poll->canVote() && !$poll->isParticipant()}1{else}0{/if}" data-question="{$poll->question}" data-max-votes="{@$poll->maxVotes}">
+<div class="container containerPadding pollContainer" data-poll-id="{@$poll->pollID}" data-can-vote="{if $poll->canVote()}1{else}0{/if}" data-can-view-result="{if $poll->canSeeResult()}1{else}0{/if}" data-can-view-participants="{if $poll->isPublic}true{else}false{/if}" data-in-vote="{if $poll->canVote() && !$poll->isParticipant()}1{else}0{/if}" data-question="{$poll->question}" data-max-votes="{@$poll->maxVotes}">
 	<fieldset>
 		<legend>{$poll->question} <span class="badge jsTooltip" title="{lang}wcf.poll.totalVotes{/lang}">{#$poll->votes}</span></legend>
 		
@@ -36,6 +36,7 @@
 			<button class="small jsButtonPollVote">{lang}wcf.poll.button.vote{/lang}</button>
 			<button class="small jsButtonPollShowVote">{lang}wcf.poll.button.showVote{/lang}</button>
 			<button class="small jsButtonPollShowResult">{lang}wcf.poll.button.showResult{/lang}</button>
+			<button class="small jsButtonPollShowParticipants">{lang}wcf.poll.button.showParticipants{/lang}</button>
 		</div>
 	{/if}
 </div>

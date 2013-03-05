@@ -11,9 +11,3 @@
 		</li>
 	{/foreach}
 </ol>
-
-{if $poll->isPublic}
-	<div class="formSubmit">
-		<button class="jsPollShowParticipants small">{lang}wcf.poll.button.showParticipants{/lang}</button>
-	</div>
-{/if}
