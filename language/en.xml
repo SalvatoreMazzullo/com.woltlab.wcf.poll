@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <language xmlns="http://www.woltlab.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.woltlab.com http://www.woltlab.com/XSD/maelstrom/language.xsd" languagecode="en">
 	<category name="wcf.poll">
+		<item name="wcf.poll.button.addOption"><![CDATA[Add Another Option]]></item>
+		<item name="wcf.poll.button.removeOption"><![CDATA[Remove Option]]></item>
 		<item name="wcf.poll.button.showParticipants"><![CDATA[List Participants]]></item>
 		<item name="wcf.poll.button.showResult"><![CDATA[Show Result]]></item>
 		<item name="wcf.poll.button.showVote"><![CDATA[Vote]]></item>
@@ -15,7 +17,7 @@
 		<item name="wcf.poll.question"><![CDATA[Question]]></item>
 		<item name="wcf.poll.restrictedResult"><![CDATA[Result is only visible for participants]]></item>
 		<item name="wcf.poll.resultsRequireVote"><![CDATA[Restrict results for participants only]]></item>
-		<item name="wcf.poll.resultsRequireVote"><![CDATA[Results are invisible unless the poll ended or the user voted.]]></item>
+		<item name="wcf.poll.resultsRequireVote.description"><![CDATA[Results are invisible unless the poll ended or the user voted.]]></item>
 		<item name="wcf.poll.sortByVotes"><![CDATA[Sort result by votes]]></item>
 		<item name="wcf.poll.totalVotes"><![CDATA[A total of {#$poll->votes} vote{if $poll->votes != 1}s{/if}]]></item>
 		<item name="wcf.poll.noVotes"><![CDATA[No votes yet]]></item>

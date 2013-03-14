@@ -4,8 +4,8 @@
 		//<![CDATA[
 		$(function() {
 			WCF.Language.addObject({
-				'wcf.poll.addOption': '{lang}wcf.poll.addOption{/lang}',
-				'wcf.poll.removeOption': '{lang}wcf.poll.removeOption{/lang}'
+				'wcf.poll.button.addOption': '{lang}wcf.poll.button.addOption{/lang}',
+				'wcf.poll.button.removeOption': '{lang}wcf.poll.button.removeOption{/lang}'
 			});
 			
 			new WCF.Poll.Management('pollOptionContainer', [ {implode from=$pollOptions item=pollOption}{ optionID: {@$pollOption[optionID]}, optionValue: '{$pollOption[optionValue]}' }{/implode} ]);
