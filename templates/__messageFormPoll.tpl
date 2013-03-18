@@ -56,7 +56,7 @@
 					<input type="number" name="pollMaxVotes" id="pollMaxVotes" value="{@$pollMaxVotes}" min="1" />
 					{if $errorField == 'pollMaxVotes'}
 						<small class="innerError">
-							{lang}wcf.poll.endTime.error.{@$errorType}{/lang}
+							{lang}wcf.poll.maxVotes.error.{@$errorType}{/lang}
 						</small>
 					{/if}
 				</dd>
