@@ -12,6 +12,8 @@
 		<item name="wcf.poll.isPublic"><![CDATA[Teilnehmer sind sichtbar]]></item>
 		<item name="wcf.poll.management"><![CDATA[Umfrage]]></item>
 		<item name="wcf.poll.maxVotes"><![CDATA[Anzahl erlaubter Antworten]]></item>
+		<item name="wcf.poll.maxVotes.error.notValid"><![CDATA[Die Anzahl der erlaubten Antworten liegt über den tatsächlich verfügbaren Antworten.]]></item>
+		<item name="wcf.poll.multipleVotes"><![CDATA[Sie können mehrere Antwortmöglichkeiten wählen.]]></item>
 		<item name="wcf.poll.options"><![CDATA[Antworten]]></item>
 		<item name="wcf.poll.options.description"><![CDATA[Sie können die Antworten mittels Drücken und Festhalten in ihrer Reihenfolge ändern. Sie können {@POLL_MAX_OPTIONS} Antwortmöglichkeiten vorgeben.]]></item>
 		<item name="wcf.poll.question"><![CDATA[Frage]]></item>
