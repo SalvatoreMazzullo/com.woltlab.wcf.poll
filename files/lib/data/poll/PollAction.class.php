@@ -238,7 +238,7 @@ class PollAction extends AbstractDatabaseObjectAction implements IGroupedUserLis
 	 * @see	wcf\data\IGroupedUserListAction::validateGetGroupedUserList()
 	 */
 	public function validateGetGroupedUserList() {
-		$this->parameters['pollID'] = (isset($this->parameters['pollID'])) ? intval($this->parameters['pollID']) : 0;
+		$this->readInteger('pollID');
 		
 		// read poll
 		$this->poll = new Poll($this->parameters['pollID']);
