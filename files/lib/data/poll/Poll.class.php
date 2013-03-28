@@ -63,10 +63,21 @@ class Poll extends DatabaseObject {
 	/**
 	 * Returns a list of poll options.
 	 * 
+	 * @param	boolean		$isResultDisplay
 	 * @return	array<wcf\data\poll\option\PollOption>
 	 */
-	public function getOptions() {
+	public function getOptions($isResultDisplay = false) {
 		$this->loadOptions();
+		
+		if ($isResultDisplay && $this->sortByVotes) {
+			uasort($this->options, function($a, $b) {
+				if ($a->votes == $b->votes) {
+					return 0;
+				}
+				
+				return ($a->votes > $b->votes) ? -1 : 1;
+			});
+		}
 		
 		return $this->options;
 	}

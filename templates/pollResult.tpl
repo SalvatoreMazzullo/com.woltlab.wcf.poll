@@ -1,5 +1,5 @@
 <ol class="pollResultList">
-	{foreach from=$poll->getOptions() item=option}
+	{foreach from=$poll->getOptions(true) item=option}
 		<li class="pollResultItem">
 			<span class="pollMeter" style="width: {if $option->getRelativeVotes($poll)}{@$option->getRelativeVotes($poll)}%{else}0{/if}">&nbsp;</span>
 			<div class="caption">
