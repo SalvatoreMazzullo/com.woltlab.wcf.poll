@@ -19,7 +19,7 @@
 		<item name="wcf.poll.management"><![CDATA[Poll]]></item>
 		<item name="wcf.poll.maxVotes"><![CDATA[Number of Allowed Votes]]></item>
 		<item name="wcf.poll.maxVotes.error.notValid"><![CDATA[Maximum number of allowed votes exceeds number of available options.]]></item>
-		<item name="wcf.poll.multipleVotes"><![CDATA[You may vote for multiple options.]]></item>
+		<item name="wcf.poll.multipleVotes"><![CDATA[You may select up to {#$poll->maxVotes} options.]]></item>
 		<item name="wcf.poll.options"><![CDATA[Options]]></item>
 		<item name="wcf.poll.options.description"><![CDATA[You can sort the options with drag and drop to change their order. You can create up to {@POLL_MAX_OPTIONS} options.]]></item>
 		<item name="wcf.poll.question"><![CDATA[Question]]></item>
