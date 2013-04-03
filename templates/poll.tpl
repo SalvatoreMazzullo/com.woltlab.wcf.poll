@@ -28,6 +28,8 @@
 					{include file='pollResult'}
 				{/if}
 			{/if}
+			
+			{event name='pollData'}
 		</div>
 	</fieldset>
 	
@@ -37,6 +39,7 @@
 			<button class="small jsButtonPollShowVote">{lang}wcf.poll.button.showVote{/lang}</button>
 			<button class="small jsButtonPollShowResult">{lang}wcf.poll.button.showResult{/lang}</button>
 			<button class="small jsButtonPollShowParticipants">{lang}wcf.poll.button.showParticipants{/lang}</button>
+			{event name='pollButtons'}
 		</div>
 	{/if}
 </div>

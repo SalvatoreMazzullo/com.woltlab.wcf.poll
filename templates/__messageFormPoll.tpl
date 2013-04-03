@@ -76,6 +76,8 @@
 					<label><input type="checkbox" name="pollSortByVotes" value="1"{if $pollSortByVotes} checked="checked"{/if} /> {lang}wcf.poll.sortByVotes{/lang}</label>
 				</dd>
 			</dl>
+			
+			{event name='fields'}
 		</fieldset>
 	</div>
 {/if}
