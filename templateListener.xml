@@ -5,14 +5,14 @@
 		<templatelistener name="messageFormPollTabMenuItem">
 			<environment>user</environment>
 			<templatename>messageFormTabs</templatename>
-			<eventname>tabMenuItems</eventname>
+			<eventname>tabMenuTabs</eventname>
 			<templatecode><![CDATA[{if $__showPoll|isset && $__showPoll}<li><a href="{@$__wcf->getAnchor('poll')}" title="{lang}wcf.poll.management{/lang}">{lang}wcf.poll.management{/lang}</a></li>{/if}]]></templatecode>
 		</templatelistener>
 		
 		<templatelistener name="messageFormPoll">
 			<environment>user</environment>
 			<templatename>messageFormTabs</templatename>
-			<eventname>tabMenuContent</eventname>
+			<eventname>tabMenuContents</eventname>
 			<templatecode><![CDATA[{include file='__messageFormPoll'}]]></templatecode>
 		</templatelistener>
 		<!-- /user -->
