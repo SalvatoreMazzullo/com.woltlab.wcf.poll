@@ -53,7 +53,7 @@ class PollManager extends SingletonFactory {
 	 * @var	array<mixed>
 	 */
 	protected $pollData = array(
-		'endTime' => 0,
+		'endTime' => '',
 		'isChangeable' => 0,
 		'isPublic' => 0,
 		'maxVotes' => 1,
@@ -160,7 +160,13 @@ class PollManager extends SingletonFactory {
 		$this->pollData = $this->pollOptions = array();
 		
 		// poll data
-		if (isset($_POST['pollEndTime'])) $this->pollData['endTime'] = intval($_POST['pollEndTime']);
+		if (isset($_POST['pollEndTime'])) {
+			$endTime = StringUtil::trim($_POST['pollEndTime']);
+			$endTime = (!empty($endTime)) ? strtotime($endTime . ':00') : '';
+			
+			$this->pollData['endTime'] = ($endTime) ?: 0;
+		}
+		
 		if (isset($_POST['pollMaxVotes'])) $this->pollData['maxVotes'] = max(intval($_POST['pollMaxVotes']), 1); // force a minimum of 1
 		if (isset($_POST['pollQuestion'])) $this->pollData['question'] = StringUtil::trim($_POST['pollQuestion']);
 		
@@ -275,28 +281,23 @@ class PollManager extends SingletonFactory {
 	
 	/**
 	 * Assigns variables for poll management or display.
-	 * 
-	 * @param	boolean		$management
 	 */
-	public function assignVariables($management = true) {
-		// poll management
-		if ($management) {
-			$variables = array(
-				'__showPoll' => true,
-				'pollID' => ($this->poll === null ? 0 : $this->poll->pollID),
-				'pollOptions' => $this->pollOptions
-			);
-			foreach ($this->pollData as $key => $value) {
-				$key = 'poll'.ucfirst($key);
-				$variables[$key] = $value;
+	public function assignVariables() {
+		$variables = array(
+			'__showPoll' => true,
+			'pollID' => ($this->poll === null ? 0 : $this->poll->pollID),
+			'pollOptions' => $this->pollOptions
+		);
+		foreach ($this->pollData as $key => $value) {
+			if ($key == 'endTime') {
+				if (!$value) $value = '';
 			}
 			
-			WCF::getTPL()->assign($variables);
+			$key = 'poll'.ucfirst($key);
+			$variables[$key] = $value;
 		}
-		else {
-			// poll display
-			throw new SystemException("IMPLEMENT ME!");
-		}
+		
+		WCF::getTPL()->assign($variables);
 	}
 	
 	/**
