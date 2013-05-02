@@ -162,7 +162,7 @@ class PollManager extends SingletonFactory {
 		// poll data
 		if (isset($_POST['pollEndTime'])) {
 			$endTime = StringUtil::trim($_POST['pollEndTime']);
-			$endTime = (!empty($endTime)) ? strtotime($endTime . ':00') : '';
+			$endTime = (!empty($endTime)) ? @strtotime($endTime . ':00') : '';
 			
 			$this->pollData['endTime'] = ($endTime) ?: 0;
 		}
