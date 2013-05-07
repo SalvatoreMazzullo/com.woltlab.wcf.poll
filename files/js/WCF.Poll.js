@@ -90,8 +90,8 @@ WCF.Poll.Management = Class.extend({
 		
 		// insert buttons
 		var $buttonContainer = $('<span class="sortableButtonContainer" />').appendTo($listItem);
-		$('<span class="icon icon16 icon-plus jsTooltip jsAddOption" title="' + WCF.Language.get('wcf.poll.button.addOption') + '" />').click($.proxy(this._addOption, this)).appendTo($buttonContainer);
-		$('<span class="icon icon16 icon-remove jsTooltip jsDeleteOption" title="' + WCF.Language.get('wcf.poll.button.removeOption') + '" />').click($.proxy(this._removeOption, this)).appendTo($buttonContainer);
+		$('<span class="icon icon16 icon-plus jsTooltip jsAddOption pointer" title="' + WCF.Language.get('wcf.poll.button.addOption') + '" />').click($.proxy(this._addOption, this)).appendTo($buttonContainer);
+		$('<span class="icon icon16 icon-remove jsTooltip jsDeleteOption pointer" title="' + WCF.Language.get('wcf.poll.button.removeOption') + '" />').click($.proxy(this._removeOption, this)).appendTo($buttonContainer);
 		
 		// insert input field
 		var $input = $('<input type="text" value="' + optionValue + '" />').css({ width: this._inputSize + "px" }).keydown($.proxy(this._keyDown, this)).appendTo($listItem);
