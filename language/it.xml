@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language xmlns="http://www.woltlab.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.woltlab.com http://www.woltlab.com/XSD/maelstrom/language.xsd" languagecode="it">
+  <category name="wcf.acp.option">
+		<item name="wcf.acp.option.category.message.general.poll"><![CDATA[Sondaggi]]></item>
+		<item name="wcf.acp.option.module_poll"><![CDATA[Sondaggi]]></item>
+		<item name="wcf.acp.option.poll_max_options"><![CDATA[Numero massimo di opzioni]]></item>
+	</category>
+
+	<category name="wcf.poll">
+		<item name="wcf.poll.button.addOption"><![CDATA[Aggiungi un'altra opzione]]></item>
+		<item name="wcf.poll.button.removeOption"><![CDATA[Rimuovi opzione]]></item>
+		<item name="wcf.poll.button.showParticipants"><![CDATA[Lista partecipanti]]></item>
+		<item name="wcf.poll.button.showResult"><![CDATA[Mostra risultato]]></item>
+		<item name="wcf.poll.button.showVote"><![CDATA[Vota]]></item>
+		<item name="wcf.poll.button.vote"><![CDATA[Vota]]></item>
+		<item name="wcf.poll.endTime"><![CDATA[Fine sondaggio (Opzionale)]]></item>
+		<item name="wcf.poll.isChangeable"><![CDATA[I voti possono essere cambiati]]></item>
+		<item name="wcf.poll.isPublic"><![CDATA[Partecipanti visibili]]></item>
+		<item name="wcf.poll.management"><![CDATA[Sondaggio]]></item>
+		<item name="wcf.poll.maxVotes"><![CDATA[Numero di voti ammessi]]></item>
+		<item name="wcf.poll.maxVotes.error.notValid"><![CDATA[Il numero massimo di ammessi voti supera il numero di opzioni disponibili.]]></item>
+		<item name="wcf.poll.multipleVotes"><![CDATA[È possibile selezionare fino a {#$poll->maxVotes} opzioni.]]></item>
+		<item name="wcf.poll.options"><![CDATA[Opzione]]></item>
+		<item name="wcf.poll.options.description"><![CDATA[È possibile ordinare le opzioni con il drag and drop per modificarne l'ordine. È possibile creare fino a {@POLL_MAX_OPTIONS} opzioni.]]></item>
+		<item name="wcf.poll.question"><![CDATA[Domanda]]></item>
+		<item name="wcf.poll.restrictedResult"><![CDATA[Il risultato è visibile solo per i partecipanti]]></item>
+		<item name="wcf.poll.resultsRequireVote"><![CDATA[Limitare i risultati solo per i partecipanti]]></item>
+		<item name="wcf.poll.resultsRequireVote.description"><![CDATA[I risultati non sono visibili a meno che il sondaggio non sia concluso o l'utente ha votato.]]></item>
+		<item name="wcf.poll.sortByVotes"><![CDATA[Ordina risultati per numero di voti]]></item>
+		<item name="wcf.poll.totalVotes"><![CDATA[Un totale di {#$poll->votes} voti]]></item>
+		<item name="wcf.poll.noVotes"><![CDATA[Non ci sono ancora voti]]></item>
+	</category>
+</language>
